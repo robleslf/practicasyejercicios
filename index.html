@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Guxing Nexus • Centro de Módulos de Estudio</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       PALETA CYBER-COZY CENTRAL
+       ========================================================== */
+    :root {
+      --bg-core: #07050d;
+      --bg-panel: #110d1c;
+      --bg-card: #171226;
+      --bg-card-hover: #201936;
+      --bg-input: #1f1833;
+
+      /* Neones */
+      --neon-cyan: #00f0ff;
+      --neon-pink: #ff2a85;
+      --neon-purple: #c084fc;
+      --neon-emerald: #10b981;
+      --neon-amber: #f59e0b;
+
+      /* Resplandores */
+      --glow-cyan: rgba(0, 240, 255, 0.25);
+      --glow-pink: rgba(255, 42, 133, 0.25);
+      --glow-purple: rgba(192, 132, 252, 0.2);
+
+      --border-subtle: #2b2245;
+      --border-card: rgba(192, 132, 252, 0.2);
+
+      --text-main: #fcfaff;
+      --text-muted: #a79cb8;
+      --text-dim: #6c6085;
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-core);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px 40px;
+      background-image: 
+        radial-gradient(ellipse at 50% -10%, rgba(192, 132, 252, 0.18), transparent 60%),
+        radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.08), transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(255, 42, 133, 0.08), transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .hub-container {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ==========================================================
+       CABECERA DEL HUB
+       ========================================================== */
+    .hub-header {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 2rem 2.2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(192, 132, 252, 0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .hub-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-pink), var(--neon-cyan), var(--neon-purple), transparent);
+    }
+
+    .hub-title h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.3rem;
+    }
+
+    .hub-title h1 span.gradient {
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hub-title p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .hub-badge-stats {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-md);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==========================================================
+       BARRA DE BÚSQUEDA Y FILTROS
+       ========================================================== */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.8rem 1rem 0.8rem 2.6rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.25s ease;
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 16px var(--glow-cyan);
+      background: var(--bg-input);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background: var(--bg-panel);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-pill:hover {
+      color: #fff;
+      border-color: var(--neon-purple);
+    }
+
+    .filter-pill.active {
+      background: linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(0, 240, 255, 0.2));
+      color: #fff;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 14px var(--glow-cyan);
+    }
+
+    /* ==========================================================
+       GRID DE TARJETAS DE APLICACIONES
+       ========================================================== */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .app-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--card-accent, var(--neon-cyan));
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .app-card:hover {
+      transform: translateY(-5px);
+      background: var(--bg-card-hover);
+      border-color: var(--card-accent, var(--neon-cyan));
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 0 20px var(--card-glow, var(--glow-cyan));
+    }
+
+    .app-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .app-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .app-id-badge {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .app-meta h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.4rem;
+      line-height: 1.3;
+    }
+
+    .app-meta p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+    }
+
+    .app-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.4rem;
+    }
+
+    .tag-item {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-indicator {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--neon-emerald);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--neon-emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--neon-emerald);
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .btn-launch {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--card-accent, var(--neon-cyan));
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: gap 0.2s;
+    }
+
+    .app-card:hover .btn-launch {
+      gap: 8px;
+    }
+
+    /* Estado vacío cuando no hay resultados en el filtro */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    /* ==========================================================
+       RESPONSIVE
+       ========================================================== */
+    @media (max-width: 650px) {
+      .hub-header {
+        padding: 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .controls-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-pills {
+        overflow-x: auto;
+        padding-bottom: 4px;
+        flex-wrap: nowrap;
+      }
+      .apps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hub-container">
+  
+  <!-- CABECERA PRINCIPAL -->
+  <header class="hub-header">
+    <div class="hub-title">
+      <h1>🪐 <span class="gradient">Guxing Hub</span> ⚡</h1>
+      <p>Estación central y lanzador de herramientas interactivas de estudio</p>
+    </div>
+    <div class="hub-badge-stats">
+      <div class="stat-pill" id="total-modules-pill">📦 2 Módulos</div>
+      <div class="stat-pill" style="color: var(--neon-emerald);">⚡ Online</div>
+    </div>
+  </header>
+
+  <!-- BUSCADOR Y SELECTORES -->
+  <section class="controls-bar">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" class="search-input" placeholder="Buscar módulo, concepto (ej: binario, IPv4, GiB)..." autocomplete="off">
+    </div>
+
+    <div class="filter-pills" id="category-filters">
+      <button class="filter-pill active" data-cat="all">✨ Todos</button>
+      <button class="filter-pill" data-cat="sistemas">💾 Sistemas & Datos</button>
+      <button class="filter-pill" data-cat="redes">🪐 Redes & Telecom</button>
+    </div>
+  </section>
+
+  <!-- GRID DINÁMICO DE APPS -->
+  <main class="apps-grid" id="apps-container">
+    <!-- Se generan automáticamente desde el array APPS -->
+  </main>
+
+</div>
+
+<script>
+  /* ==========================================================================
+     CONFIGURACIÓN ESCALABLE DE APLICACIONES (AÑADE AQUÍ TUS PRÓXIMAS APPS)
+     ========================================================================== */
+  const APPS = [
+    {
+      id: "001",
+      file: "001_convertidor.html",
+      title: "Nexus Storage Matrix",
+      subtitle: "Conversor interactivo cuántico de almacenamiento digital. Conversión entre Sistema Decimal (SI: 1000) y Binario (IEC: 1024), bits y Bytes con desglose por saltos de escalera.",
+      category: "sistemas",
+      icon: "💾",
+      accent: "#38bdf8", // Cyan
+      glow: "rgba(56, 189, 248, 0.3)",
+      tags: ["Almacenamiento", "kB ↔ KiB", "SI vs IEC", "Bytes", "Potencias"],
+      status: "Activo"
+    },
+    {
+      id: "002",
+      file: "002_guxing-net.html",
+      title: "Guxing Net • Subnet Matrix",
+      subtitle: "Laboratorio táctico de cálculo y desglose de subredes IPv4. Máscaras de red, hosts útiles, broadcast, conversor en vivo y borrador rápido de operaciones.",
+      category: "redes",
+      icon: "🪐",
+      accent: "#ff2a85", // Neon Pink
+      glow: "rgba(255, 42, 133, 0.3)",
+      tags: ["IPv4", "Subnetting", "Máscaras", "Binario", "CIDR", "Hosts"],
+      status: "Activo"
+    },
+    {
+    id: "003",
+    file: "003_guxing-subnetting.html",
+    title: "Guxing Net • Subnet Architect",
+    subtitle: "Simulador avanzado de diseño y planificación de subredes. Análisis de viabilidad, cálculo de máscaras, saltos de bloque y asignación de host por planta/departamento.",
+    category: "redes",
+    icon: "🏢",
+    accent: "#f59e0b", // Neón Oro / Ámbar
+    glow: "rgba(245, 158, 11, 0.35)",
+    tags: ["Subnetting", "Topología", "Viabilidad", "Salto de Red", "FLSM", "IPv4"],
+    status: "Activo"
+    }
+    
+    /* 
+    ==========================================================================
+    EJEMPLO PARA CUANDO CRIES LA 003, 004... (Solo descomenta y edita):
+    ==========================================================================
+    ,{
+      id: "003",
+      file: "003_tu_proxima_app.html",
+      title: "Nombre de tu módulo",
+      subtitle: "Descripción corta del ejercicio o tema de estudio.",
+      category: "sistemas", // o "redes", "programacion", etc.
+      icon: "⚡",
+      accent: "#c084fc", // Púrpura neón
+      glow: "rgba(192, 132, 252, 0.3)",
+      tags: ["Tema 1", "Tema 2"],
+      status: "Activo"
+    }
+    */
+  ];
+
+  /* ==========================================================================
+     LÓGICA DE RENDERIZADO Y FILTRADO AUTOMÁTICO
+     ========================================================================== */
+  const appsContainer = document.getElementById('apps-container');
+  const searchInput = document.getElementById('search-input');
+  const filterPills = document.querySelectorAll('.filter-pill');
+  const totalPill = document.getElementById('total-modules-pill');
+
+  let currentCategory = 'all';
+  let currentSearch = '';
+
+  function renderApps() {
+    appsContainer.innerHTML = '';
+
+    const filtered = APPS.filter(app => {
+      const matchCat = currentCategory === 'all' || app.category === currentCategory;
+      const textQuery = `${app.title} ${app.subtitle} ${app.id} ${app.tags.join(' ')}`.toLowerCase();
+      const matchSearch = textQuery.includes(currentSearch.toLowerCase());
+      return matchCat && matchSearch;
+    });
+
+    totalPill.innerText = `📦 ${APPS.length} Módulo${APPS.length > 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      appsContainer.innerHTML = `
+        <div class="empty-state">
+          🛸 No se encontró ningún módulo con el criterio "<strong>${currentSearch}</strong>".
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(app => {
+      const card = document.createElement('a');
+      card.href = app.file;
+      card.className = 'app-card';
+      card.style.setProperty('--card-accent', app.accent);
+      card.style.setProperty('--card-glow', app.glow);
+
+      const tagsHtml = app.tags.map(t => `<span class="tag-item">${t}</span>`).join('');
+
+      card.innerHTML = `
+        <div>
+          <div class="card-top">
+            <div class="app-icon-box">${app.icon}</div>
+            <span class="app-id-badge">#${app.id}</span>
+          </div>
+
+          <div class="app-meta">
+            <h2>${app.title}</h2>
+            <p>${app.subtitle}</p>
+          </div>
+
+          <div class="app-tags">
+            ${tagsHtml}
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>${app.status}</span>
+          </div>
+          <span class="btn-launch">Iniciar Módulo ➔</span>
+        </div>
+      `;
+
+      appsContainer.appendChild(card);
+    });
+  }
+
+  /* EVENT LISTENERS */
+  searchInput.addEventListener('input', (e) => {
+    currentSearch = e.target.value.trim();
+    renderApps();
+  });
+
+  filterPills.forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      filterPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentCategory = pill.dataset.cat;
+      renderApps();
+    });
+  });
+
+  // Atajo de teclado: pulsar ESC limpia el buscador
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchInput.value !== '') {
+      searchInput.value = '';
+      currentSearch = '';
+      renderApps();
+    }
+  });
+
+  // Inicializar
+  renderApps();
+</script>
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Storage • Conversor de Datos</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 50%, #030712 100%);
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: rgba(148, 163, 184, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --accent-cyan: #38bdf8;
+      --accent-violet: #a855f7;
+      
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.4);
+      
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.4);
+      
+      --error: #f43f5e;
+      --error-glow: rgba(244, 63, 94, 0.4);
+      
+      --glow-si: rgba(56, 189, 248, 0.25);
+      --glow-iec: rgba(232, 121, 249, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .app-container {
+      max-width: 720px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      position: relative;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-violet), transparent);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    header h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #e0e7ff 0%, #38bdf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1.2rem;
+    }
+
+    .mode-pill {
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .mode-pill:hover {
+      color: var(--text-main);
+      border-color: var(--accent-cyan);
+    }
+
+    .mode-pill.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+      color: #fff;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .stats-hub {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      padding: 0.8rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-item {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .stat-item strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    #streak-val { color: var(--warning); }
+
+    .question-hub {
+      text-align: center;
+      padding: 0.5rem 0 1.2rem;
+    }
+
+    .question-prompt {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-cyan);
+      margin-bottom: 0.75rem;
+    }
+
+    .challenge {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 8px;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .badge-si {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 12px var(--glow-si);
+    }
+
+    .badge-iec {
+      background: rgba(232, 121, 249, 0.15);
+      color: #f0abfc;
+      border: 1px solid rgba(232, 121, 249, 0.3);
+      box-shadow: 0 0 12px var(--glow-iec);
+    }
+
+    .input-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.9rem 1.2rem;
+      font-size: 1.25rem;
+      color: #fff;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    input:disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    input.state-success {
+      border-color: var(--success) !important;
+      background: rgba(16, 185, 129, 0.1) !important;
+      box-shadow: 0 0 25px var(--success-glow) !important;
+    }
+
+    input.state-warning {
+      border-color: var(--warning) !important;
+      background: rgba(245, 158, 11, 0.1) !important;
+      box-shadow: 0 0 25px var(--warning-glow) !important;
+    }
+
+    input.state-error {
+      border-color: var(--error) !important;
+      background: rgba(244, 63, 94, 0.1) !important;
+      box-shadow: 0 0 25px var(--error-glow) !important;
+      animation: shake 0.35s ease;
+    }
+
+    input.state-surrendered {
+      border-color: #475569 !important;
+      background: #0f172a !important;
+      color: #94a3b8 !important;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 1.5rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .btn-glow {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-glow:hover {
+      background: linear-gradient(135deg, #1d4ed8, #6d28d9);
+      box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #059669, #10b981) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.5) !important;
+    }
+
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .btn-link {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-link:hover {
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-surrender {
+      color: #fda4af;
+      font-weight: 600;
+    }
+
+    .btn-surrender:hover {
+      color: #ffe4e6;
+      background: rgba(244, 63, 94, 0.15);
+    }
+
+    .feedback-box {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 16px;
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .feedback-box.active-feedback {
+      display: block !important;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .feedback-box.correct {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1.5px solid rgba(16, 185, 129, 0.5);
+      color: #a7f3d0;
+    }
+
+    .feedback-box.warning {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1.5px solid rgba(245, 158, 11, 0.5);
+      color: #fde68a;
+    }
+
+    .feedback-box.try-again {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1.5px solid rgba(244, 63, 94, 0.5);
+      color: #fda4af;
+    }
+
+    .feedback-box.surrendered {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid #38bdf8;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 500px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .compare-card {
+      padding: 1.2rem;
+      border-radius: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .compare-card.user-val {
+      background: rgba(244, 63, 94, 0.12);
+      border: 2px solid rgba(244, 63, 94, 0.5);
+    }
+
+    .compare-card.exact-val {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+    }
+
+    .compare-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .compare-card.user-val .compare-title { color: #f87171; }
+    .compare-card.exact-val .compare-title { color: #34d399; }
+
+    .compare-number {
+      font-size: 1.4rem;
+      font-weight: 900;
+      font-family: 'Consolas', 'Courier New', monospace;
+      word-break: break-all;
+    }
+
+    .compare-card.user-val .compare-number { color: #fecdd3; }
+    .compare-card.exact-val .compare-number { color: #6ee7b7; }
+
+    /* ESTILOS DE DESGLOSE MATEMÁTICO */
+    .math-breakdown {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    .alt-method {
+      margin-top: 0.9rem;
+      padding: 0.8rem 1rem;
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 0 8px 8px 0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #e0f2fe;
+      line-height: 1.6;
+    }
+
+    .alt-method strong.title {
+      color: var(--accent-cyan);
+      display: block;
+      margin-bottom: 0.3rem;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    details {
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    details summary {
+      cursor: pointer;
+      color: var(--accent-cyan);
+      user-select: none;
+      padding: 0.3rem 0;
+    }
+
+    .table-container {
+      margin-top: 0.6rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    th {
+      color: var(--accent-cyan);
+      background: rgba(15, 23, 42, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="glass-card">
+    <header>
+      <h1>NEXUS STORAGE</h1>
+      <p>Entrenamiento interactivo de almacenamiento digital</p>
+
+      <div class="modes">
+        <button class="mode-pill active" data-mode="all">✨ Multiverso (Todo)</button>
+        <button class="mode-pill" data-mode="cross">⚡ Cruces (SI ↔ IEC)</button>
+        <button class="mode-pill" data-mode="si">🪐 Solo Decimal (1000)</button>
+        <button class="mode-pill" data-mode="iec">🚀 Solo Binario (1024)</button>
+      </div>
+    </header>
+  </div>
+
+  <div class="glass-card">
+    <div class="stats-hub">
+      <div class="stat-item">Aciertos <strong id="score-correct">0</strong></div>
+      <div class="stat-item">Racha <strong id="streak-val">0 🔥</strong></div>
+      <div class="stat-item">Intentos fallidos <strong id="score-tries">0</strong></div>
+    </div>
+
+    <div class="question-hub">
+      <div class="question-prompt">Transformación solicitada</div>
+      <div class="challenge" id="challenge-view">Cargando...</div>
+    </div>
+
+    <form class="input-form" id="converter-form" onsubmit="return false;">
+      <div class="input-row">
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="user-input" 
+            placeholder="Introduce tu resultado" 
+            autocomplete="off"
+            spellcheck="false"
+            autofocus
+          >
+        </div>
+        <button type="submit" class="btn btn-glow" id="action-btn">Comprobar</button>
+      </div>
+
+      <div class="actions-bar">
+        <button type="button" class="btn-link btn-surrender" id="surrender-btn">🏳️ Rendirse y ver solución</button>
+        <button type="button" class="btn-link" id="reset-stats">Reiniciar marcador</button>
+      </div>
+    </form>
+
+    <div id="feedback" class="feedback-box"></div>
+
+    <details>
+      <summary>📖 Consultar Matriz de Factores y Potencias</summary>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Sistema</th>
+              <th>Símbolo</th>
+              <th>Nombre</th>
+              <th>Base exacta en Bytes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Elemental</td><td>b</td><td>bit</td><td>0.125 B (1/8 Byte)</td></tr>
+            <tr><td>Elemental</td><td>B</td><td>Byte</td><td>1 Byte (8 bits)</td></tr>
+            <tr><td>SI (Decimal)</td><td>kB</td><td>Kilobyte</td><td>10³ = 1.000 B</td></tr>
+            <tr><td>SI (Decimal)</td><td>MB</td><td>Megabyte</td><td>10⁶ = 1.000.000 B</td></tr>
+            <tr><td>SI (Decimal)</td><td>GB</td><td>Gigabyte</td><td>10⁹ = 1.000.000.000 B</td></tr>
+            <tr><td>SI (Decimal)</td><td>TB</td><td>Terabyte</td><td>10¹² = 1.000.000.000.000 B</td></tr>
+            <tr><td>IEC (Binario)</td><td>KiB</td><td>Kibibyte</td><td>2¹⁰ = 1.024 B</td></tr>
+            <tr><td>IEC (Binario)</td><td>MiB</td><td>Mebibyte</td><td>2²⁰ = 1.048.576 B</td></tr>
+            <tr><td>IEC (Binario)</td><td>GiB</td><td>Gibibyte</td><td>2³⁰ = 1.073.741.824 B</td></tr>
+            <tr><td>IEC (Binario)</td><td>TiB</td><td>Tebibyte</td><td>2⁴⁰ = 1.099.511.627.776 B</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script>
+  const UNITS = {
+    'b':   { name: 'bit',       bytes: 0.125,           type: 'bit', power: '1/8 B' },
+    'B':   { name: 'Byte',      bytes: 1,               type: 'byte', power: '1 B' },
+    // SI (Decimal 1000)
+    'kB':  { name: 'Kilobyte',  bytes: 1e3,             type: 'si',  power: '10³ B (1.000 B)' },
+    'MB':  { name: 'Megabyte',  bytes: 1e6,             type: 'si',  power: '10⁶ B (1.000.000 B)' },
+    'GB':  { name: 'Gigabyte',  bytes: 1e9,             type: 'si',  power: '10⁹ B (1.000.000.000 B)' },
+    'TB':  { name: 'Terabyte',  bytes: 1e12,            type: 'si',  power: '10¹² B' },
+    'PB':  { name: 'Petabyte',  bytes: 1e15,            type: 'si',  power: '10¹⁵ B' },
+    // IEC (Binario 1024)
+    'KiB': { name: 'Kibibyte',  bytes: Math.pow(2, 10), type: 'iec', power: '2¹⁰ B (1.024 B)' },
+    'MiB': { name: 'Mebibyte',  bytes: Math.pow(2, 20), type: 'iec', power: '2²⁰ B (1.048.576 B)' },
+    'GiB': { name: 'Gibibyte',  bytes: Math.pow(2, 30), type: 'iec', power: '2³⁰ B (1.073.741.824 B)' },
+    'TiB': { name: 'Tebibyte',  bytes: Math.pow(2, 40), type: 'iec', power: '2⁴⁰ B' },
+    'PiB': { name: 'Pebibyte',  bytes: Math.pow(2, 50), type: 'iec', power: '2⁵⁰ B' }
+  };
+
+  const SI_POOL = ['B', 'kB', 'MB', 'GB', 'TB'];
+  const IEC_POOL = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+  const ALL_POOL = ['b', 'B', 'kB', 'KiB', 'MB', 'MiB', 'GB', 'GiB', 'TB', 'TiB'];
+
+  // Listas ordenadas para calcular escalones
+  const IEC_LADDER = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+  const SI_LADDER  = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
+
+  let mode = 'all';
+  let problem = null;
+  let isResolved = false;
+  let stats = { correct: 0, triesWrong: 0, streak: 0 };
+
+  const challengeView = document.getElementById('challenge-view');
+  const userInput = document.getElementById('user-input');
+  const actionBtn = document.getElementById('action-btn');
+  const feedback = document.getElementById('feedback');
+  const surrenderBtn = document.getElementById('surrender-btn');
+  const scoreCorrect = document.getElementById('score-correct');
+  const streakVal = document.getElementById('streak-val');
+  const scoreTries = document.getElementById('score-tries');
+
+  function rand(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function pickDifferent(poolA, poolB = poolA) {
+    let u1 = poolA[rand(0, poolA.length - 1)];
+    let u2 = poolB[rand(0, poolB.length - 1)];
+    while (u1 === u2) u2 = poolB[rand(0, poolB.length - 1)];
+    return [u1, u2];
+  }
+
+  function createProblem() {
+    isResolved = false;
+    userInput.value = '';
+    userInput.className = '';
+    userInput.disabled = false;
+    
+    feedback.className = 'feedback-box';
+    feedback.innerHTML = '';
+    
+    actionBtn.textContent = 'Comprobar';
+    actionBtn.classList.remove('btn-next');
+    surrenderBtn.style.display = 'inline-block';
+
+    let fromU, toU;
+    if (mode === 'all') [fromU, toU] = pickDifferent(ALL_POOL);
+    else if (mode === 'si') [fromU, toU] = pickDifferent(SI_POOL);
+    else if (mode === 'iec') [fromU, toU] = pickDifferent(IEC_POOL);
+    else if (mode === 'cross') {
+      const siList = ['kB', 'MB', 'GB', 'TB'];
+      const iecList = ['KiB', 'MiB', 'GiB', 'TiB'];
+      if (Math.random() > 0.5) {
+        fromU = siList[rand(0, siList.length - 1)];
+        toU = iecList[rand(0, iecList.length - 1)];
+      } else {
+        fromU = iecList[rand(0, iecList.length - 1)];
+        toU = siList[rand(0, siList.length - 1)];
+      }
+    }
+
+    const friendlyNumbers = [1, 2, 4, 5, 8, 10, 16, 20, 25, 32, 50, 64, 100, 128, 256, 500, 512, 1024];
+    const value = friendlyNumbers[rand(0, friendlyNumbers.length - 1)];
+
+    const totalBytes = value * UNITS[fromU].bytes;
+    const result = totalBytes / UNITS[toU].bytes;
+
+    problem = { value, fromU, toU, totalBytes, result };
+
+    const getBadge = (u) => `<span class="badge ${UNITS[u].type === 'iec' ? 'badge-iec' : 'badge-si'}">${u}</span>`;
+    challengeView.innerHTML = `¿Cuánto es <strong>${value}</strong> ${getBadge(fromU)} en ${getBadge(toU)}?`;
+    userInput.focus();
+  }
+
+  function fmt(n) {
+    if (Number.isInteger(n)) return n.toLocaleString('es-ES');
+    if (Math.abs(n) < 0.00001 || Math.abs(n) > 1e12) return n.toExponential(4).replace('.', ',');
+    let fixed = Number(n.toFixed(6));
+    return fixed.toString().replace('.', ',');
+  }
+
+  // Generador de la explicación paso a paso y la versión por saltos directos (* 1024 o * 1000)
+  function getStepByStep() {
+    const p = problem;
+    
+    // Método 1: Estándar (pasando por Bytes)
+    let html = `
+      <div class="math-breakdown">
+        <strong>⚡ Método 1: Paso formal a Bytes:</strong><br>
+        1️⃣ <strong>Pasar a Bytes:</strong> ${p.value} ${p.fromU} × (${UNITS[p.fromU].power}) = <strong>${fmt(p.totalBytes)} Bytes</strong><br>
+        2️⃣ <strong>Pasar a ${p.toU}:</strong> ${fmt(p.totalBytes)} Bytes ÷ (${UNITS[p.toU].power}) = <strong>${fmt(p.result)} ${p.toU}</strong>
+      </div>
+    `;
+
+    // Método 2: "O visto de otro modo" (Escalera directa de saltos)
+    const altExplanation = generateLadderExplanation(p);
+    if (altExplanation) {
+      html += `
+        <div class="alt-method">
+          <strong class="title">🪜 O visto de otro modo (por saltos directos):</strong>
+          ${altExplanation}
+        </div>
+      `;
+    }
+
+    return html;
+  }
+
+  function generateLadderExplanation(p) {
+    const from = p.fromU;
+    const to = p.toU;
+    const val = p.value;
+
+    // Caso A: Ambos son Binarios (IEC)
+    if (IEC_LADDER.includes(from) && IEC_LADDER.includes(to)) {
+      const idxFrom = IEC_LADDER.indexOf(from);
+      const idxTo = IEC_LADDER.indexOf(to);
+      const steps = Math.abs(idxFrom - idxTo);
+
+      if (idxFrom > idxTo) {
+        // Bajando escalones (Multiplicar por 1024)
+        let lines = [];
+        let curVal = val;
+        for (let i = idxFrom - 1; i >= idxTo; i--) {
+          const nextVal = curVal * 1024;
+          lines.push(`• ${fmt(curVal)} × 1024 = <strong>${fmt(nextVal)} ${IEC_LADDER[i]}</strong>`);
+          curVal = nextVal;
+        }
+        const formulaChain = Array(steps).fill('1024').join(' × ');
+        return `
+          De <strong>${from}</strong> a <strong>${to}</strong> hay que <u>bajar ${steps} escalón(es)</u> (multiplicar por 1024):<br>
+          ${lines.join('<br>')}<br>
+          👉 <em>En una sola cuenta:</em> <code>${val} × ${formulaChain} = <strong>${fmt(p.result)} ${to}</strong></code>
+        `;
+      } else {
+        // Subiendo escalones (Dividir entre 1024)
+        let lines = [];
+        let curVal = val;
+        for (let i = idxFrom + 1; i <= idxTo; i++) {
+          const nextVal = curVal / 1024;
+          lines.push(`• ${fmt(curVal)} ÷ 1024 = <strong>${fmt(nextVal)} ${IEC_LADDER[i]}</strong>`);
+          curVal = nextVal;
+        }
+        const formulaChain = Array(steps).fill('1024').join(' ÷ ');
+        return `
+          De <strong>${from}</strong> a <strong>${to}</strong> hay que <u>subir ${steps} escalón(es)</u> (dividir entre 1024):<br>
+          ${lines.join('<br>')}<br>
+          👉 <em>En una sola cuenta:</em> <code>${val} ÷ ${formulaChain} = <strong>${fmt(p.result)} ${to}</strong></code>
+        `;
+      }
+    }
+
+    // Caso B: Ambos son Decimales (SI)
+    if (SI_LADDER.includes(from) && SI_LADDER.includes(to)) {
+      const idxFrom = SI_LADDER.indexOf(from);
+      const idxTo = SI_LADDER.indexOf(to);
+      const steps = Math.abs(idxFrom - idxTo);
+
+      if (idxFrom > idxTo) {
+        // Bajando (Multiplicar por 1000)
+        let lines = [];
+        let curVal = val;
+        for (let i = idxFrom - 1; i >= idxTo; i--) {
+          const nextVal = curVal * 1000;
+          lines.push(`• ${fmt(curVal)} × 1000 = <strong>${fmt(nextVal)} ${SI_LADDER[i]}</strong>`);
+          curVal = nextVal;
+        }
+        const formulaChain = Array(steps).fill('1000').join(' × ');
+        return `
+          De <strong>${from}</strong> a <strong>${to}</strong> hay que <u>bajar ${steps} escalón(es)</u> (multiplicar por 1000):<br>
+          ${lines.join('<br>')}<br>
+          👉 <em>En una sola cuenta:</em> <code>${val} × ${formulaChain} = <strong>${fmt(p.result)} ${to}</strong></code>
+        `;
+      } else {
+        // Subiendo (Dividir entre 1000)
+        let lines = [];
+        let curVal = val;
+        for (let i = idxFrom + 1; i <= idxTo; i++) {
+          const nextVal = curVal / 1000;
+          lines.push(`• ${fmt(curVal)} ÷ 1000 = <strong>${fmt(nextVal)} ${SI_LADDER[i]}</strong>`);
+          curVal = nextVal;
+        }
+        const formulaChain = Array(steps).fill('1000').join(' ÷ ');
+        return `
+          De <strong>${from}</strong> a <strong>${to}</strong> hay que <u>subir ${steps} escalón(es)</u> (dividir entre 1000):<br>
+          ${lines.join('<br>')}<br>
+          👉 <em>En una sola cuenta:</em> <code>${val} ÷ ${formulaChain} = <strong>${fmt(p.result)} ${to}</strong></code>
+        `;
+      }
+    }
+
+    // Caso C: Conversión mixta (SI ↔ IEC o bits)
+    let step1Text = '';
+    if (SI_LADDER.includes(from) && from !== 'B') {
+      const steps = SI_LADDER.indexOf(from);
+      step1Text = `Bajar ${steps} salto(s) de 1000 hasta Bytes: <code>${val} ${Array(steps).fill('× 1000').join(' ')} = ${fmt(p.totalBytes)} B</code>`;
+    } else if (IEC_LADDER.includes(from) && from !== 'B') {
+      const steps = IEC_LADDER.indexOf(from);
+      step1Text = `Bajar ${steps} salto(s) de 1024 hasta Bytes: <code>${val} ${Array(steps).fill('× 1024').join(' ')} = ${fmt(p.totalBytes)} B</code>`;
+    } else if (from === 'b') {
+      step1Text = `Pasar bits a Bytes (dividir entre 8): <code>${val} ÷ 8 = ${fmt(p.totalBytes)} B</code>`;
+    }
+
+    let step2Text = '';
+    if (SI_LADDER.includes(to) && to !== 'B') {
+      const steps = SI_LADDER.indexOf(to);
+      step2Text = `Subir ${steps} salto(s) de 1000 a ${to}: <code>${fmt(p.totalBytes)} ${Array(steps).fill('÷ 1000').join(' ')} = ${fmt(p.result)} ${to}</code>`;
+    } else if (IEC_LADDER.includes(to) && to !== 'B') {
+      const steps = IEC_LADDER.indexOf(to);
+      step2Text = `Subir ${steps} salto(s) de 1024 a ${to}: <code>${fmt(p.totalBytes)} ${Array(steps).fill('÷ 1024').join(' ')} = ${fmt(p.result)} ${to}</code>`;
+    } else if (to === 'b') {
+      step2Text = `Pasar Bytes a bits (multiplicar por 8): <code>${fmt(p.totalBytes)} × 8 = ${fmt(p.result)} b</code>`;
+    }
+
+    return `
+      ${step1Text ? `• ${step1Text}<br>` : ''}
+      ${step2Text ? `• ${step2Text}` : ''}
+    `;
+  }
+
+  function parseUniversalFloat(str) {
+    if (!str) return NaN;
+    let clean = str.trim().replace(/\s+/g, '');
+    if (clean.includes(',')) {
+      clean = clean.replace(/\./g, '').replace(',', '.');
+    }
+    return parseFloat(clean);
+  }
+
+  function handleCheck() {
+    if (isResolved) {
+      createProblem();
+      return;
+    }
+
+    const val = parseUniversalFloat(userInput.value);
+
+    if (isNaN(val)) {
+      userInput.classList.add('state-error');
+      feedback.className = 'feedback-box active-feedback try-again';
+      feedback.innerHTML = '⚠️ Escribe una cifra válida antes de comprobar.';
+      setTimeout(() => userInput.classList.remove('state-error'), 400);
+      return;
+    }
+
+    const exact = problem.result;
+    const diff = Math.abs(val - exact);
+    const relError = exact !== 0 ? diff / Math.abs(exact) : diff;
+
+    const isExact = relError <= 0.001 || diff < 0.0001;
+    const isApprox = !isExact && relError <= 0.035;
+
+    if (isExact) {
+      isResolved = true;
+      stats.correct++;
+      stats.streak++;
+      updateStats();
+
+      userInput.className = 'state-success';
+      userInput.disabled = true;
+
+      actionBtn.textContent = 'Siguiente Desafío →';
+      actionBtn.classList.add('btn-next');
+      surrenderBtn.style.display = 'none';
+
+      feedback.className = 'feedback-box active-feedback correct';
+      feedback.innerHTML = `✨ <strong>¡Exacto y perfecto!</strong> Resultado: <strong>${fmt(exact)} ${problem.toU}</strong>` + getStepByStep();
+
+    } else if (isApprox) {
+      isResolved = true;
+      stats.correct++;
+      stats.streak++;
+      updateStats();
+
+      userInput.className = 'state-warning';
+      userInput.disabled = true;
+
+      actionBtn.textContent = 'Siguiente Desafío →';
+      actionBtn.classList.add('btn-next');
+      surrenderBtn.style.display = 'none';
+
+      feedback.className = 'feedback-box active-feedback warning';
+      feedback.innerHTML = `
+        👍 <strong>¡Correcto por aproximación!</strong> (Aceptado)<br>
+        Tu cálculo: <strong>${fmt(val)} ${problem.toU}</strong> | Valor exacto sin redondear: <strong>${fmt(exact)} ${problem.toU}</strong>
+      ` + getStepByStep();
+
+    } else {
+      stats.triesWrong++;
+      stats.streak = 0;
+      updateStats();
+
+      userInput.classList.remove('state-success', 'state-warning');
+      userInput.classList.add('state-error');
+
+      feedback.className = 'feedback-box active-feedback try-again';
+      feedback.innerHTML = `❌ <strong>${userInput.value}</strong> no es correcto. ¡Revisa las operaciones y vuelve a intentarlo!`;
+
+      setTimeout(() => userInput.classList.remove('state-error'), 400);
+      userInput.focus();
+      userInput.select();
+    }
+  }
+
+  function surrender() {
+    if (isResolved) return;
+    
+    isResolved = true;
+    stats.streak = 0;
+    updateStats();
+
+    userInput.disabled = true;
+    userInput.className = 'state-surrendered';
+
+    const writtenVal = userInput.value.trim() !== '' ? userInput.value.trim() : '(Sin responder)';
+
+    actionBtn.textContent = 'Siguiente Desafío →';
+    actionBtn.classList.add('btn-next');
+    surrenderBtn.style.display = 'none';
+
+    feedback.className = 'feedback-box active-feedback surrendered';
+    feedback.innerHTML = `
+      <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8; margin-bottom: 0.5rem;">
+        💡 Desafío Revelado
+      </div>
+      
+      <div class="comparison-grid">
+        <div class="compare-card user-val">
+          <span class="compare-title">❌ Lo que tú pusiste</span>
+          <span class="compare-number">${writtenVal}</span>
+        </div>
+        <div class="compare-card exact-val">
+          <span class="compare-title">✅ Solución correcta real</span>
+          <span class="compare-number">${fmt(problem.result)} ${problem.toU}</span>
+        </div>
+      </div>
+
+      ${getStepByStep()}
+    `;
+  }
+
+  function updateStats() {
+    scoreCorrect.textContent = stats.correct;
+    streakVal.textContent = `${stats.streak} 🔥`;
+    scoreTries.textContent = stats.triesWrong;
+  }
+
+  document.getElementById('converter-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    handleCheck();
+  });
+
+  surrenderBtn.addEventListener('click', surrender);
+
+  document.getElementById('reset-stats').addEventListener('click', () => {
+    stats = { correct: 0, triesWrong: 0, streak: 0 };
+    updateStats();
+  });
+
+  document.querySelectorAll('.mode-pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+      mode = e.target.dataset.mode;
+      createProblem();
+    });
+  });
+
+  createProblem();
+</script>
+</body>
+</html>

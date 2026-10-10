@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Guxing Net 🪐⚡ - Subnet Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================
+       VARIABLES Y PALETA FLÚOR OSCURA (CYBER-COZY)
+       ========================================================== */
+    :root {
+      --bg-core: #09070f;
+      --bg-panel: #120e1d;
+      --bg-card: #181329;
+      --bg-input: #231b3a;
+      --bg-input-focus: #312452;
+
+      /* Neones Flúor */
+      --fluor-pink: #ff2a85;
+      --fluor-magenta: #f43f5e;
+      --fluor-purple: #c084fc;
+      --fluor-indigo: #818cf8;
+      --fluor-cyan: #00f0ff;
+      --fluor-sky: #38bdf8;
+
+      /* Resplandores y Bordes */
+      --glow-pink: rgba(255, 42, 133, 0.35);
+      --glow-cyan: rgba(0, 240, 255, 0.35);
+      --glow-purple: rgba(192, 132, 252, 0.25);
+      --border-subtle: #292042;
+      --border-card: rgba(192, 132, 252, 0.25);
+      --border-cyan: rgba(0, 240, 255, 0.4);
+
+      --tools-bg: #131126;
+      --tools-border: rgba(129, 140, 248, 0.35);
+
+      --text-main: #fcfaff;
+      --text-muted: #a99ec0;
+      --text-dim: #6c6085;
+
+      --success-border: #00ffaa;
+      --success-bg: rgba(0, 255, 170, 0.14);
+      --success-text: #5effc4;
+
+      --error-border: #ff3366;
+      --error-bg: rgba(255, 51, 102, 0.16);
+      --error-text: #ff809f;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: var(--bg-core);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px calc(env(safe-area-inset-bottom, 0px) + 30px);
+      line-height: 1.4;
+      background-image: 
+        radial-gradient(ellipse at 50% -10%, rgba(192, 132, 252, 0.16), transparent 60%),
+        radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.08), transparent 45%);
+    }
+
+    /* ==========================================================
+       BARRA HUD FIJA SUPERIOR
+       ========================================================== */
+    .sticky-hud {
+      position: -webkit-sticky;
+      position: sticky;
+      top: env(safe-area-inset-top, 8px);
+      z-index: 9999;
+      width: 100%;
+      max-width: 1120px;
+      background: rgba(18, 14, 29, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--fluor-purple);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 18px var(--glow-purple);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hud-left, .hud-center, .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-title-mini {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--fluor-cyan);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .hud-converter {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-core);
+      padding: 4px 6px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .hud-conv-box {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .hud-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--fluor-cyan);
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      padding: 4px 5px;
+      border-radius: 4px;
+      outline: none;
+      text-align: center;
+      height: 32px;
+      -webkit-appearance: none;
+    }
+
+    .hud-input.dec { width: 56px; }
+    .hud-input.bin { width: 94px; letter-spacing: 0.5px; font-size: 14px; }
+
+    .btn-hud-icon {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 4px 7px;
+      border-radius: 4px;
+      height: 32px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-hud-icon:hover {
+      color: var(--fluor-cyan);
+      border-color: var(--fluor-cyan);
+    }
+
+    .btn-mask-toggle {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: not-allowed;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .btn-mask-toggle.unlocked {
+      border-color: var(--fluor-pink);
+      color: var(--fluor-pink);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--glow-pink);
+    }
+
+    .btn-mask-toggle.active {
+      background: var(--fluor-pink);
+      color: #09070f;
+      box-shadow: 0 0 18px var(--glow-pink);
+    }
+
+    .hud-streak {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--fluor-cyan);
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid var(--fluor-cyan);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================
+       CONTENEDOR PRINCIPAL
+       ========================================================== */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand h1 span.highlight {
+      background: linear-gradient(135deg, var(--fluor-pink), var(--fluor-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================
+       BORRADOR
+       ========================================================== */
+    .scratchpad-card {
+      background: var(--tools-bg);
+      border: 1px dashed var(--tools-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .scratchpad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .scratchpad-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--fluor-purple);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .scratchpad-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================
+       ENUNCIADO Y PANEL PERSONALIZADO
+       ========================================================== */
+    .problem-box {
+      background: linear-gradient(135deg, #1d1532, #140f23);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .target-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .target-ip {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--fluor-cyan);
+      text-shadow: 0 0 12px var(--glow-cyan);
+    }
+
+    .problem-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Panel de Input Personalizado */
+    .custom-ip-panel {
+      display: none;
+      background: #100b1d;
+      border: 1px solid var(--fluor-cyan);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-top: -12px;
+      margin-bottom: 22px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .custom-ip-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .custom-ip-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--fluor-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .custom-ip-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slash-label {
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      color: var(--fluor-pink);
+      font-size: 1.2rem;
+    }
+
+    /* ==========================================================
+       TARJETAS DE EJERCICIO
+       ========================================================== */
+    .cards-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      transition: all 0.2s ease;
+    }
+
+    .group-card.target-step {
+      border-color: var(--border-cyan);
+      background: linear-gradient(135deg, #13172b, #181329);
+    }
+
+    .group-card.correct {
+      border-color: var(--success-border) !important;
+      background: var(--success-bg) !important;
+    }
+
+    .group-card.incorrect {
+      border-color: var(--error-border) !important;
+      background: var(--error-bg) !important;
+    }
+
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .group-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .group-title span.tag {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      background: rgba(192, 132, 252, 0.15);
+      color: var(--fluor-purple);
+      border-radius: 4px;
+    }
+
+    .group-title span.tag-cyan {
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--fluor-cyan);
+    }
+
+    .group-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sub-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sub-row-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .sub-row-label {
+      width: 65px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action-icon {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 6px 9px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .btn-action-icon:hover {
+      background: var(--bg-input-focus);
+      color: var(--fluor-cyan);
+      border-color: var(--fluor-cyan);
+    }
+
+    .btn-action-icon.copied {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    /* CASILLAS DECIMALES */
+    .octets-container {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .dot {
+      color: var(--fluor-purple);
+      font-weight: bold;
+      font-family: 'Fira Code', monospace;
+      user-select: none;
+      opacity: 0.7;
+      padding: 0 1px;
+    }
+
+    .octet-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      text-align: center;
+      border-radius: 5px;
+      height: 38px;
+      outline: none;
+      transition: all 0.15s ease;
+      -webkit-appearance: none;
+    }
+
+    .octet-input:focus, .bit-input:focus {
+      border-color: var(--fluor-pink);
+      background: var(--bg-input-focus);
+      box-shadow: 0 0 8px var(--glow-pink);
+    }
+
+    .octet-input.dec { width: 52px; }
+    .single-input { width: 130px; text-align: center; }
+
+    /* CASILLAS BINARIAS */
+    .binary-container {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .bit-octet-group {
+      display: inline-flex;
+      gap: 2px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .bit-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--fluor-sky);
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 3px;
+      width: 20px;
+      height: 34px;
+      outline: none;
+      padding: 0;
+      transition: all 0.15s ease;
+      -webkit-appearance: none;
+    }
+
+    .bit-input.net-bit-highlight {
+      background: rgba(255, 42, 133, 0.3) !important;
+      border-color: var(--fluor-pink) !important;
+      color: var(--fluor-cyan) !important;
+      box-shadow: 0 0 6px var(--glow-pink) !important;
+    }
+
+    /* BOTONES */
+    button {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-tool {
+      background: var(--bg-input);
+      border: 1px solid var(--tools-border);
+      color: var(--text-main);
+      font-size: 0.75rem;
+      padding: 6px 10px;
+    }
+
+    .btn-tool:hover {
+      background: var(--fluor-indigo);
+      color: #09070f;
+    }
+
+    .btn-verify-group {
+      background: rgba(192, 132, 252, 0.12);
+      border: 1px solid var(--fluor-purple);
+      color: var(--fluor-purple);
+      padding: 5px 12px;
+    }
+
+    .btn-verify-group:hover {
+      background: var(--fluor-purple);
+      color: #09070f;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--fluor-pink), var(--fluor-magenta));
+      color: #ffffff;
+      padding: 10px 18px;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 14px var(--glow-pink);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.15);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--fluor-cyan);
+      color: var(--fluor-cyan);
+    }
+
+    .btn-accent {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--fluor-cyan);
+      color: var(--fluor-cyan);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+    }
+
+    .btn-accent:hover {
+      background: var(--fluor-cyan);
+      color: #09070f;
+    }
+
+    .global-controls {
+      margin-top: 22px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .feedback-message {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      text-align: center;
+      font-weight: 700;
+      min-height: 24px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      body { padding: calc(env(safe-area-inset-top, 0px) + 6px) 6px calc(env(safe-area-inset-bottom, 0px) + 24px); }
+      .container { padding: 16px 10px; }
+      
+      .sticky-hud {
+        padding: 8px 10px;
+        gap: 6px;
+        justify-content: space-between;
+      }
+      .hud-center {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        margin-top: 4px;
+      }
+
+      .problem-box {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .problem-actions { width: 100%; }
+      .problem-actions button { flex: 1; }
+
+      .sub-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .sub-row-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .row-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .binary-container {
+        justify-content: flex-start;
+        gap: 2px;
+      }
+      .bit-input {
+        width: 18px;
+        height: 32px;
+        font-size: 15px;
+      }
+
+      .global-controls button {
+        width: 100%;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA HUD -->
+  <aside class="sticky-hud" id="main-hud">
+    <div class="hud-left">
+      <div class="hud-title-mini">🪐 GUXING</div>
+      <a href="#scratchpad-box" style="text-decoration:none;">
+        <button class="btn-tool" style="padding:4px 8px;">📝 Borrador</button>
+      </a>
+    </div>
+
+    <!-- Conversor Rápido en HUD -->
+    <div class="hud-center">
+      <div class="hud-converter">
+        <div class="hud-conv-box">
+          <input type="number" id="hud-dec" class="hud-input dec" min="0" max="255" placeholder="DEC">
+          <button class="btn-hud-icon" onclick="copyHudVal('dec')" title="Copiar decimal">📋</button>
+          <button class="btn-hud-icon" onclick="pasteHudVal('dec')" title="Pegar decimal">📥</button>
+        </div>
+        <span class="dot">⇄</span>
+        <div class="hud-conv-box">
+          <input type="text" id="hud-bin" class="hud-input bin" maxlength="8" placeholder="8 BITS">
+          <button class="btn-hud-icon" onclick="copyHudVal('bin')" title="Copiar 8 bits">📋</button>
+          <button class="btn-hud-icon" onclick="pasteHudVal('bin')" title="Pegar 8 bits">📥</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <button id="btn-toggle-mask-highlight" class="btn-mask-toggle" disabled title="Acierta la máscara primero para desbloquear">
+        🔒 Colorear Máscara
+      </button>
+      <div class="hud-streak" id="hud-streak-count">⚡ 0 aciertos</div>
+    </div>
+  </aside>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="container">
+    <header>
+      <div class="brand">
+        <h1>🪐 Guxing Net <span class="highlight">//</span> Subnet Matrix ⚡</h1>
+        <p>Práctica interactiva de cálculo y desglose de subredes IPv4</p>
+      </div>
+    </header>
+
+    <!-- BORRADOR -->
+    <section class="scratchpad-card" id="scratchpad-box">
+      <div class="scratchpad-header">
+        <div class="scratchpad-title">
+          <span>📝 Borrador Libre de Operaciones</span>
+          <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(No se evalúa)</span>
+        </div>
+        <div class="scratchpad-actions">
+          <button class="btn-tool" id="btn-scratch-dec2bin">[ Dec ➔ Bin ]</button>
+          <button class="btn-tool" id="btn-scratch-bin2dec">[ Bin ➔ Dec ]</button>
+          <button class="btn-tool" id="btn-scratch-clear">[ Limpiar ]</button>
+        </div>
+      </div>
+
+      <div class="group-content">
+        <div class="sub-row">
+          <div class="sub-row-left">
+            <span class="sub-row-label">DEC:</span>
+            <div class="octets-container" data-field="scratch-dec">
+              <input type="text" maxlength="3" class="octet-input dec" placeholder="0">
+              <span class="dot">.</span>
+              <input type="text" maxlength="3" class="octet-input dec" placeholder="0">
+              <span class="dot">.</span>
+              <input type="text" maxlength="3" class="octet-input dec" placeholder="0">
+              <span class="dot">.</span>
+              <input type="text" maxlength="3" class="octet-input dec" placeholder="0">
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+            <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+          </div>
+        </div>
+
+        <div class="sub-row">
+          <div class="sub-row-left">
+            <span class="sub-row-label">BIN:</span>
+            <div class="binary-container" data-bin-group="scratch-bin"></div>
+          </div>
+          <div class="row-actions">
+            <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+            <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENUNCIADO -->
+    <section class="problem-box">
+      <div>
+        <div class="target-label">🪐 Dirección IP y Prefijo Asignado</div>
+        <div class="target-ip" id="target-ip-display">192.168.10.45 /26</div>
+      </div>
+      <div class="problem-actions">
+        <button class="btn-accent" id="btn-toggle-custom">✏️ Personalizar IP</button>
+        <button class="btn-secondary" id="btn-solution">💡 Ver Solución</button>
+        <button class="btn-primary" id="btn-new-problem">🪐 Aleatorio</button>
+      </div>
+    </section>
+
+    <!-- PANEL DE INTRODUCCIÓN MANUAL DE IP -->
+    <section class="custom-ip-panel" id="custom-ip-panel">
+      <div class="custom-ip-header">
+        <span>⚙️ CONFIGURAR IP Y MÁSCARA PERSONALIZADA</span>
+        <button class="btn-tool" id="btn-close-custom" style="padding:2px 8px;">✕</button>
+      </div>
+      <div class="custom-ip-row">
+        <div class="octets-container" id="custom-octets-box">
+          <input type="text" maxlength="3" class="octet-input dec" id="custom-ip-0" placeholder="192">
+          <span class="dot">.</span>
+          <input type="text" maxlength="3" class="octet-input dec" id="custom-ip-1" placeholder="168">
+          <span class="dot">.</span>
+          <input type="text" maxlength="3" class="octet-input dec" id="custom-ip-2" placeholder="1">
+          <span class="dot">.</span>
+          <input type="text" maxlength="3" class="octet-input dec" id="custom-ip-3" placeholder="50">
+        </div>
+        <span class="slash-label">/</span>
+        <input type="number" min="1" max="30" class="octet-input dec" id="custom-cidr" placeholder="24" style="width:58px;">
+        <button class="btn-primary" id="btn-apply-custom">🚀 Cargar mi IP</button>
+      </div>
+    </section>
+
+    <!-- TARJETAS -->
+    <section class="cards-grid">
+
+      <!-- 00. IP EN BINARIO -->
+      <div class="group-card target-step" id="card-target">
+        <div class="group-header">
+          <div class="group-title">
+            <span>00. IP Asignada (en Binario)</span>
+            <span class="tag tag-cyan">PASO PREVIO</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('target')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">32 BITS:</span>
+              <div class="binary-container" data-bin-group="target-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 01. MÁSCARA -->
+      <div class="group-card" id="card-mask">
+        <div class="group-header">
+          <div class="group-title">
+            <span>01. Máscara de Red</span>
+            <span class="tag">MÁSCARA</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('mask')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">DECIMAL:</span>
+              <div class="octets-container" data-field="mask-dec">
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+            </div>
+          </div>
+
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">BINARIO:</span>
+              <div class="binary-container" data-bin-group="mask-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02. RED -->
+      <div class="group-card" id="card-net">
+        <div class="group-header">
+          <div class="group-title">
+            <span>02. Dirección de Red</span>
+            <span class="tag">RED</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('net')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">DECIMAL:</span>
+              <div class="octets-container" data-field="net-dec">
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+            </div>
+          </div>
+
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">BINARIO:</span>
+              <div class="binary-container" data-bin-group="net-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03. PRIMER HOST -->
+      <div class="group-card" id="card-first">
+        <div class="group-header">
+          <div class="group-title">
+            <span>03. Primer Host Útil</span>
+            <span class="tag">PRIMER HOST</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('first')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">DECIMAL:</span>
+              <div class="octets-container" data-field="first-dec">
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+            </div>
+          </div>
+
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">BINARIO:</span>
+              <div class="binary-container" data-bin-group="first-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04. ÚLTIMO HOST -->
+      <div class="group-card" id="card-last">
+        <div class="group-header">
+          <div class="group-title">
+            <span>04. Último Host Útil</span>
+            <span class="tag">ÚLTIMO HOST</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('last')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">DECIMAL:</span>
+              <div class="octets-container" data-field="last-dec">
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+            </div>
+          </div>
+
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">BINARIO:</span>
+              <div class="binary-container" data-bin-group="last-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05. BROADCAST -->
+      <div class="group-card" id="card-bcast">
+        <div class="group-header">
+          <div class="group-title">
+            <span>05. Dirección de Broadcast</span>
+            <span class="tag">BROADCAST</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('bcast')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">DECIMAL:</span>
+              <div class="octets-container" data-field="bcast-dec">
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+                <span class="dot">.</span>
+                <input type="text" maxlength="3" class="octet-input dec">
+              </div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'dec')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'dec')">📥 Pegar</button>
+            </div>
+          </div>
+
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">BINARIO:</span>
+              <div class="binary-container" data-bin-group="bcast-bin"></div>
+            </div>
+            <div class="row-actions">
+              <button class="btn-action-icon" onclick="copyRow(this, 'bin')">📋 Copiar</button>
+              <button class="btn-action-icon" onclick="pasteRow(this, 'bin')">📥 Pegar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06. HOSTS -->
+      <div class="group-card" id="card-hosts">
+        <div class="group-header">
+          <div class="group-title">
+            <span>06. Número de Hosts Disponibles</span>
+            <span class="tag">2ⁿ - 2</span>
+          </div>
+          <button class="btn-verify-group" onclick="checkGroup('hosts')">Comprobar</button>
+        </div>
+        <div class="group-content">
+          <div class="sub-row">
+            <div class="sub-row-left">
+              <span class="sub-row-label">TOTAL:</span>
+              <div class="octets-container" data-field="hosts-val">
+                <input type="text" class="octet-input single-input" placeholder="ej. 62">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CONTROLES GLOBALES -->
+    <div class="global-controls">
+      <button class="btn-primary" id="btn-check-all">⚡ Comprobar Todo el Ejercicio</button>
+    </div>
+    
+    <div class="feedback-message" id="global-feedback"></div>
+  </main>
+
+  <script>
+    /* ESTADO GLOBAL */
+    let internalClipboard = '';
+    let isMaskCorrect = false;
+    let isHighlightActive = false;
+    let isExerciseScored = false;
+
+    let currentProblem = {
+      ip: [192, 168, 10, 45],
+      cidr: 26,
+      solutions: {}
+    };
+
+    let streak = 0;
+
+    function intToOctets(int) {
+      return [
+        (int >>> 24) & 255,
+        (int >>> 16) & 255,
+        (int >>> 8) & 255,
+        int & 255
+      ];
+    }
+
+    function octetsToInt(octets) {
+      return ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+    }
+
+    function octetsToBinString(octets) {
+      return octets.map(o => o.toString(2).padStart(8, '0')).join('');
+    }
+
+    function calculateSolutions(ipOctets, cidr) {
+      const ipInt = octetsToInt(ipOctets);
+      const maskInt = cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
+      const maskOctets = intToOctets(maskInt);
+      
+      const netInt = (ipInt & maskInt) >>> 0;
+      const netOctets = intToOctets(netInt);
+
+      const broadcastInt = (netInt | ~maskInt) >>> 0;
+      const broadcastOctets = intToOctets(broadcastInt);
+
+      const firstHostInt = cidr >= 31 ? netInt : netInt + 1;
+      const firstHostOctets = intToOctets(firstHostInt);
+
+      const lastHostInt = cidr >= 31 ? broadcastInt : broadcastInt - 1;
+      const lastHostOctets = intToOctets(lastHostInt);
+
+      const totalHosts = cidr >= 31 ? 0 : Math.pow(2, 32 - cidr) - 2;
+
+      return {
+        'target': { bin: octetsToBinString(ipOctets) },
+        'mask': { dec: maskOctets.join('.'), bin: octetsToBinString(maskOctets) },
+        'net': { dec: netOctets.join('.'), bin: octetsToBinString(netOctets) },
+        'first': { dec: firstHostOctets.join('.'), bin: octetsToBinString(firstHostOctets) },
+        'last': { dec: lastHostOctets.join('.'), bin: octetsToBinString(lastHostOctets) },
+        'bcast': { dec: broadcastOctets.join('.'), bin: octetsToBinString(broadcastOctets) },
+        'hosts': { val: totalHosts.toString() }
+      };
+    }
+
+    function setProblem(ip, cidr) {
+      currentProblem.ip = ip;
+      currentProblem.cidr = cidr;
+      currentProblem.solutions = calculateSolutions(ip, cidr);
+
+      document.getElementById('target-ip-display').innerText = `${ip.join('.')} /${cidr}`;
+
+      isMaskCorrect = false;
+      isHighlightActive = false;
+      isExerciseScored = false;
+      updateMaskHighlightButton();
+      applyMaskHighlight();
+
+      document.querySelectorAll('.cards-grid .octet-input, .cards-grid .bit-input').forEach(i => i.value = '');
+      document.querySelectorAll('.group-card').forEach(c => c.classList.remove('correct', 'incorrect'));
+      document.getElementById('global-feedback').innerText = '';
+    }
+
+    function generateNewProblem() {
+      const cidr = Math.floor(Math.random() * (30 - 16 + 1)) + 16;
+      const ip = [
+        [10, 172, 192][Math.floor(Math.random() * 3)],
+        Math.floor(Math.random() * 254) + 1,
+        Math.floor(Math.random() * 254) + 1,
+        Math.floor(Math.random() * 254) + 1
+      ];
+      setProblem(ip, cidr);
+    }
+
+    /* BITS Y CONSTRUCTORES */
+    function buildBinaryInputs() {
+      const containers = document.querySelectorAll('.binary-container');
+      containers.forEach(container => {
+        container.innerHTML = '';
+        for (let oct = 0; oct < 4; oct++) {
+          const group = document.createElement('div');
+          group.className = 'bit-octet-group';
+
+          for (let bit = 0; bit < 8; bit++) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = 1;
+            input.className = 'bit-input';
+            input.dataset.bitIndex = oct * 8 + bit;
+            group.appendChild(input);
+          }
+          container.appendChild(group);
+
+          if (oct < 3) {
+            const dot = document.createElement('span');
+            dot.className = 'dot';
+            dot.innerText = '.';
+            container.appendChild(dot);
+          }
+        }
+      });
+      setupInputNavigation();
+      setupUniversalPasteHandlers();
+    }
+
+    function setupInputNavigation() {
+      document.querySelectorAll('.binary-container').forEach(binContainer => {
+        const bitInputs = Array.from(binContainer.querySelectorAll('.bit-input'));
+        
+        bitInputs.forEach((input, idx) => {
+          input.addEventListener('focus', () => input.select());
+          input.addEventListener('click', () => input.select());
+
+          input.addEventListener('keydown', (e) => {
+            if (e.key === '0' || e.key === '1') {
+              e.preventDefault();
+              input.value = e.key;
+              if (idx < bitInputs.length - 1) {
+                bitInputs[idx + 1].focus();
+                bitInputs[idx + 1].select();
+              }
+            } else if (e.key === 'Backspace') {
+              if (input.value !== '') {
+                input.value = '';
+              } else if (idx > 0) {
+                bitInputs[idx - 1].focus();
+                bitInputs[idx - 1].select();
+              }
+            } else if (e.key === 'ArrowLeft' && idx > 0) {
+              e.preventDefault();
+              bitInputs[idx - 1].focus();
+              bitInputs[idx - 1].select();
+            } else if (e.key === 'ArrowRight' && idx < bitInputs.length - 1) {
+              e.preventDefault();
+              bitInputs[idx + 1].focus();
+              bitInputs[idx + 1].select();
+            }
+          });
+        });
+      });
+
+      document.querySelectorAll('.octets-container').forEach(container => {
+        const decInputs = Array.from(container.querySelectorAll('.octet-input'));
+        decInputs.forEach((input, idx) => {
+          input.addEventListener('focus', () => input.select());
+          input.addEventListener('click', () => input.select());
+
+          input.addEventListener('input', () => {
+            if (input.value.includes('.')) {
+              input.value = input.value.replace(/\./g, '');
+              if (idx < decInputs.length - 1) {
+                decInputs[idx + 1].focus();
+                decInputs[idx + 1].select();
+              }
+              return;
+            }
+            if (input.value.length >= input.maxLength && idx < decInputs.length - 1) {
+              decInputs[idx + 1].focus();
+              decInputs[idx + 1].select();
+            }
+          });
+
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value === '' && idx > 0) {
+              decInputs[idx - 1].focus();
+            }
+          });
+        });
+      });
+    }
+
+    function setupUniversalPasteHandlers() {
+      document.querySelectorAll('.octet-input.dec').forEach((input) => {
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+          const container = input.closest('.octets-container');
+          const allInputs = Array.from(container.querySelectorAll('.octet-input.dec'));
+          const startIdx = allInputs.indexOf(input);
+
+          const numbers = pasted.match(/\d+/g);
+          if (numbers) {
+            numbers.forEach((num, i) => {
+              if (allInputs[startIdx + i]) {
+                allInputs[startIdx + i].value = num.slice(0, 3);
+              }
+            });
+          }
+        });
+      });
+
+      document.querySelectorAll('.bit-input').forEach((input) => {
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+          const container = input.closest('.binary-container');
+          const allBits = Array.from(container.querySelectorAll('.bit-input'));
+          const startIdx = allBits.indexOf(input);
+
+          const bits = pasted.replace(/[^01]/g, '');
+          if (bits) {
+            for (let i = 0; i < bits.length; i++) {
+              if (allBits[startIdx + i]) {
+                allBits[startIdx + i].value = bits[i];
+              }
+            }
+          }
+        });
+      });
+    }
+
+    /* CONVERSOR HUD */
+    function setupHudConverter() {
+      const decIn = document.getElementById('hud-dec');
+      const binIn = document.getElementById('hud-bin');
+
+      decIn.addEventListener('input', () => {
+        const val = parseInt(decIn.value, 10);
+        if (!isNaN(val) && val >= 0 && val <= 255) {
+          binIn.value = val.toString(2).padStart(8, '0');
+        } else if (decIn.value === '') {
+          binIn.value = '';
+        }
+      });
+
+      binIn.addEventListener('input', () => {
+        const clean = binIn.value.replace(/[^01]/g, '');
+        binIn.value = clean;
+        if (clean.length > 0) {
+          decIn.value = parseInt(clean, 2);
+        } else {
+          decIn.value = '';
+        }
+      });
+    }
+
+    function copyHudVal(type) {
+      const val = type === 'dec' ? document.getElementById('hud-dec').value : document.getElementById('hud-bin').value;
+      if (!val) return;
+      internalClipboard = val;
+      try { navigator.clipboard.writeText(val); } catch (e) {}
+    }
+
+    function pasteHudVal(type) {
+      let clip = internalClipboard;
+      if (type === 'dec') {
+        const num = clip.match(/\d+/);
+        if (num) {
+          document.getElementById('hud-dec').value = Math.min(255, parseInt(num[0], 10));
+          document.getElementById('hud-dec').dispatchEvent(new Event('input'));
+        }
+      } else {
+        const bits = clip.replace(/[^01]/g, '').slice(0, 8);
+        if (bits) {
+          document.getElementById('hud-bin').value = bits;
+          document.getElementById('hud-bin').dispatchEvent(new Event('input'));
+        }
+      }
+    }
+
+    /* MÁSCARA HIGHLIGHT */
+    function unlockMaskHighlight() {
+      if (!isMaskCorrect) {
+        isMaskCorrect = true;
+        updateMaskHighlightButton();
+      }
+    }
+
+    function updateMaskHighlightButton() {
+      const btn = document.getElementById('btn-toggle-mask-highlight');
+      if (!isMaskCorrect) {
+        btn.disabled = true;
+        btn.className = 'btn-mask-toggle';
+        btn.innerHTML = '🔒 Colorear Máscara';
+      } else {
+        btn.disabled = false;
+        if (isHighlightActive) {
+          btn.className = 'btn-mask-toggle unlocked active';
+          btn.innerHTML = '⚡ Colorear [ON]';
+        } else {
+          btn.className = 'btn-mask-toggle unlocked';
+          btn.innerHTML = '⚡ Colorear [OFF]';
+        }
+      }
+    }
+
+    function toggleMaskHighlight() {
+      if (!isMaskCorrect) return;
+      isHighlightActive = !isHighlightActive;
+      updateMaskHighlightButton();
+      applyMaskHighlight();
+    }
+
+    function applyMaskHighlight() {
+      const cidr = currentProblem.cidr;
+      const allBinContainers = document.querySelectorAll('.binary-container');
+
+      allBinContainers.forEach(container => {
+        const bitInputs = Array.from(container.querySelectorAll('.bit-input'));
+        bitInputs.forEach((input, index) => {
+          if (isHighlightActive && index < cidr) {
+            input.classList.add('net-bit-highlight');
+          } else {
+            input.classList.remove('net-bit-highlight');
+          }
+        });
+      });
+    }
+
+    /* COPIAR Y PEGAR CASILLAS */
+    function copyRow(btn, type) {
+      const row = btn.closest('.sub-row');
+      let textToCopy = '';
+
+      if (type === 'dec') {
+        const inputs = Array.from(row.querySelectorAll('.octet-input.dec'));
+        textToCopy = inputs.map(i => i.value.trim()).join('.');
+      } else {
+        const bits = Array.from(row.querySelectorAll('.bit-input'));
+        textToCopy = bits.map(b => b.value.trim()).join('');
+      }
+
+      internalClipboard = textToCopy;
+      try { navigator.clipboard.writeText(textToCopy); } catch (err) {}
+
+      const origText = btn.innerHTML;
+      btn.innerHTML = '✓ ¡Copiado!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = origText;
+        btn.classList.remove('copied');
+      }, 1000);
+    }
+
+    function pasteRow(btn, type) {
+      const row = btn.closest('.sub-row');
+      let clipText = internalClipboard;
+
+      if (!clipText) return;
+
+      if (type === 'dec') {
+        const numbers = clipText.match(/\d+/g);
+        if (numbers) {
+          const inputs = Array.from(row.querySelectorAll('.octet-input.dec'));
+          inputs.forEach((input, i) => {
+            if (numbers[i] !== undefined) input.value = numbers[i].slice(0, 3);
+          });
+        }
+      } else {
+        const bits = clipText.replace(/[^01]/g, '');
+        if (bits) {
+          const bitInputs = Array.from(row.querySelectorAll('.bit-input'));
+          bitInputs.forEach((input, i) => {
+            if (bits[i] !== undefined) input.value = bits[i];
+          });
+        }
+      }
+
+      const origText = btn.innerHTML;
+      btn.innerHTML = '✓ Pegado';
+      setTimeout(() => { btn.innerHTML = origText; }, 800);
+    }
+
+    /* BORRADOR */
+    function setupScratchpadTools() {
+      const scratchDecInputs = Array.from(document.querySelectorAll('#scratchpad-box .octet-input.dec'));
+      const scratchBinContainer = document.querySelector('[data-bin-group="scratch-bin"]');
+      
+      document.getElementById('btn-scratch-dec2bin').addEventListener('click', () => {
+        const bitInputs = Array.from(scratchBinContainer.querySelectorAll('.bit-input'));
+        let bitIndex = 0;
+
+        scratchDecInputs.forEach(input => {
+          let val = parseInt(input.value.trim(), 10);
+          if (isNaN(val) || val < 0) val = 0;
+          if (val > 255) val = 255;
+          const binStr = val.toString(2).padStart(8, '0');
+          for (let i = 0; i < 8; i++) {
+            bitInputs[bitIndex++].value = binStr[i];
+          }
+        });
+      });
+
+      document.getElementById('btn-scratch-bin2dec').addEventListener('click', () => {
+        const bitInputs = Array.from(scratchBinContainer.querySelectorAll('.bit-input'));
+        for (let oct = 0; oct < 4; oct++) {
+          let octetBin = '';
+          for (let bit = 0; bit < 8; bit++) {
+            octetBin += bitInputs[oct * 8 + bit].value || '0';
+          }
+          scratchDecInputs[oct].value = parseInt(octetBin, 2);
+        }
+      });
+
+      document.getElementById('btn-scratch-clear').addEventListener('click', () => {
+        scratchDecInputs.forEach(i => i.value = '');
+        scratchBinContainer.querySelectorAll('.bit-input').forEach(i => i.value = '');
+      });
+    }
+
+    /* LOGICA DE IP PERSONALIZADA */
+    function setupCustomIpPanel() {
+      const panel = document.getElementById('custom-ip-panel');
+      const toggleBtn = document.getElementById('btn-toggle-custom');
+      const closeBtn = document.getElementById('btn-close-custom');
+      const applyBtn = document.getElementById('btn-apply-custom');
+
+      toggleBtn.addEventListener('click', () => {
+        panel.classList.toggle('active');
+        if (panel.classList.contains('active')) {
+          document.getElementById('custom-ip-0').focus();
+        }
+      });
+
+      closeBtn.addEventListener('click', () => {
+        panel.classList.remove('active');
+      });
+
+      applyBtn.addEventListener('click', () => {
+        const octs = [
+          parseInt(document.getElementById('custom-ip-0').value, 10),
+          parseInt(document.getElementById('custom-ip-1').value, 10),
+          parseInt(document.getElementById('custom-ip-2').value, 10),
+          parseInt(document.getElementById('custom-ip-3').value, 10)
+        ];
+        const cidr = parseInt(document.getElementById('custom-cidr').value, 10);
+
+        const areOctsValid = octs.every(o => !isNaN(o) && o >= 0 && o <= 255);
+        const isCidrValid = !isNaN(cidr) && cidr >= 1 && cidr <= 30;
+
+        if (!areOctsValid || !isCidrValid) {
+          alert('Por favor introduce una dirección IP válida (0-255 en cada octeto) y una máscara /CIDR entre 1 y 30.');
+          return;
+        }
+
+        setProblem(octs, cidr);
+        panel.classList.remove('active');
+      });
+    }
+
+    /* COMPROBACIONES */
+    function checkGroup(groupKey) {
+      const card = document.getElementById(`card-${groupKey}`);
+      const sol = currentProblem.solutions[groupKey];
+      let isCorrect = true;
+
+      if (groupKey === 'hosts') {
+        const input = card.querySelector('.single-input');
+        if (input.value.trim() !== sol.val) isCorrect = false;
+      } else if (groupKey === 'target') {
+        const bitInputs = Array.from(card.querySelectorAll('.bit-input'));
+        const userBin = bitInputs.map(i => i.value.trim()).join('');
+        if (userBin !== sol.bin) isCorrect = false;
+      } else {
+        const decInputs = Array.from(card.querySelectorAll('.octet-input.dec'));
+        const userDec = decInputs.map(i => i.value.trim()).join('.');
+        if (userDec !== sol.dec) isCorrect = false;
+
+        const bitInputs = Array.from(card.querySelectorAll('.bit-input'));
+        const userBin = bitInputs.map(i => i.value.trim()).join('');
+        if (userBin !== sol.bin) isCorrect = false;
+      }
+
+      if (isCorrect) {
+        card.classList.remove('incorrect');
+        card.classList.add('correct');
+        if (groupKey === 'mask') {
+          unlockMaskHighlight();
+        }
+      } else {
+        card.classList.remove('correct');
+        card.classList.add('incorrect');
+      }
+
+      return isCorrect;
+    }
+
+    function checkAll() {
+      const groups = ['target', 'mask', 'net', 'first', 'last', 'bcast', 'hosts'];
+      let allOk = true;
+
+      groups.forEach(g => {
+        const ok = checkGroup(g);
+        if (!ok) allOk = false;
+      });
+
+      const feedback = document.getElementById('global-feedback');
+      if (allOk) {
+        if (!isExerciseScored) {
+          streak++;
+          isExerciseScored = true;
+          document.getElementById('hud-streak-count').innerText = `⚡ ${streak} aciertos`;
+          feedback.style.color = 'var(--success-text)';
+          feedback.innerText = '⚡ ¡Perfecto! +1 a tu racha. Genera o configura el siguiente para seguir sumando.';
+        } else {
+          feedback.style.color = 'var(--fluor-cyan)';
+          feedback.innerText = '🪐 ¡Este ejercicio ya está completado y puntuado!';
+        }
+      } else {
+        streak = 0;
+        document.getElementById('hud-streak-count').innerText = `⚡ 0 aciertos`;
+        feedback.style.color = 'var(--error-text)';
+        feedback.innerText = 'Hay casillas con errores. Revisa los bloques marcados en rojo.';
+      }
+    }
+
+    function revealAllSolutions() {
+      const groups = ['target', 'mask', 'net', 'first', 'last', 'bcast', 'hosts'];
+
+      groups.forEach(g => {
+        const card = document.getElementById(`card-${g}`);
+        const sol = currentProblem.solutions[g];
+
+        if (g === 'hosts') {
+          card.querySelector('.single-input').value = sol.val;
+        } else if (g === 'target') {
+          const bitInputs = Array.from(card.querySelectorAll('.bit-input'));
+          for (let i = 0; i < 32; i++) {
+            bitInputs[i].value = sol.bin[i];
+          }
+        } else {
+          const decParts = sol.dec.split('.');
+          const decInputs = Array.from(card.querySelectorAll('.octet-input.dec'));
+          decInputs.forEach((inp, idx) => inp.value = decParts[idx]);
+
+          const bitInputs = Array.from(card.querySelectorAll('.bit-input'));
+          for (let i = 0; i < 32; i++) {
+            bitInputs[i].value = sol.bin[i];
+          }
+        }
+
+        card.classList.add('correct');
+        card.classList.remove('incorrect');
+      });
+
+      unlockMaskHighlight();
+      isExerciseScored = true;
+      streak = 0;
+      document.getElementById('hud-streak-count').innerText = `⚡ 0 aciertos`;
+      const feedback = document.getElementById('global-feedback');
+      feedback.style.color = 'var(--fluor-cyan)';
+      feedback.innerText = '🪐 Solución mostrada. Puedes activar "Colorear Máscara" en la barra superior.';
+    }
+
+    /* INICIALIZACIÓN */
+    document.addEventListener('DOMContentLoaded', () => {
+      buildBinaryInputs();
+      setupScratchpadTools();
+      setupHudConverter();
+      setupCustomIpPanel();
+      generateNewProblem();
+
+      document.getElementById('btn-new-problem').addEventListener('click', generateNewProblem);
+      document.getElementById('btn-check-all').addEventListener('click', checkAll);
+      document.getElementById('btn-solution').addEventListener('click', revealAllSolutions);
+      document.getElementById('btn-toggle-mask-highlight').addEventListener('click', toggleMaskHighlight);
+    });
+  </script>
+</body>
+</html>

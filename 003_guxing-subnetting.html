@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>Guxing Net 🪐⚡ v2.0 - Subnet Architect</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       PALETA CYBER-GOLD / FLÚOR EDITION (GUXING V2)
+       ========================================================== */
+    :root {
+      --bg-core: #090710;
+      --bg-panel: #130f1e;
+      --bg-card: #191428;
+      --bg-input: #221a36;
+      --bg-input-focus: #322550;
+
+      --fluor-gold: #f59e0b;
+      --fluor-amber: #fbbf24;
+      --fluor-cyan: #00f0ff;
+      --fluor-pink: #ff2a85;
+      --fluor-purple: #c084fc;
+      --fluor-emerald: #10b981;
+
+      --glow-gold: rgba(245, 158, 11, 0.35);
+      --glow-cyan: rgba(0, 240, 255, 0.35);
+      --glow-pink: rgba(255, 42, 133, 0.3);
+
+      --border-subtle: #2d2347;
+      --border-card: rgba(245, 158, 11, 0.25);
+      --border-cyan: rgba(0, 240, 255, 0.4);
+
+      --text-main: #fcfaff;
+      --text-muted: #aba0bf;
+      --text-dim: #70628a;
+
+      --success-border: #00ffaa;
+      --success-bg: rgba(0, 255, 170, 0.12);
+      --success-text: #5effc4;
+
+      --error-border: #ff3366;
+      --error-bg: rgba(255, 51, 102, 0.15);
+      --error-text: #ff809f;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-core);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(env(safe-area-inset-top, 0px) + 8px) 10px 40px;
+      background-image: 
+        radial-gradient(ellipse at 50% -10%, rgba(245, 158, 11, 0.15), transparent 60%),
+        radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.08), transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(255, 42, 133, 0.08), transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* HUD SUPERIOR FIJO */
+    .sticky-hud {
+      position: sticky;
+      top: env(safe-area-inset-top, 8px);
+      z-index: 999;
+      width: 100%;
+      max-width: 1160px;
+      background: rgba(19, 15, 30, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--fluor-gold);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), 0 0 18px var(--glow-gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hud-left, .hud-center, .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-title-mini {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--fluor-gold);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .hud-converter {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg-core);
+      padding: 4px 6px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .hud-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--fluor-cyan);
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      outline: none;
+      text-align: center;
+      height: 30px;
+    }
+
+    .hud-input.dec { width: 54px; }
+    .hud-input.bin { width: 92px; font-size: 13px; }
+
+    .hud-streak {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--fluor-amber);
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid var(--fluor-amber);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .container {
+      width: 100%;
+      max-width: 1160px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand h1 span.highlight {
+      background: linear-gradient(135deg, var(--fluor-gold), var(--fluor-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+    }
+
+    /* ENUNCIADO DEL PROYECTO */
+    .scenario-card {
+      background: linear-gradient(135deg, #201712, #181226);
+      border: 1.5px solid var(--fluor-gold);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 22px;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+      position: relative;
+    }
+
+    .scenario-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--fluor-gold);
+      margin-bottom: 6px;
+    }
+
+    .scenario-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .scenario-requirements {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .req-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .req-item span.lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .req-item span.val {
+      font-family: 'Fira Code', monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--fluor-cyan);
+    }
+
+    .req-item span.val-gold { color: var(--fluor-amber); }
+
+    .scenario-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* PANEL PERSONALIZADO */
+    .custom-panel {
+      display: none;
+      background: #110d1c;
+      border: 1px solid var(--fluor-cyan);
+      box-shadow: 0 0 16px var(--glow-cyan);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: -12px;
+      margin-bottom: 22px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .custom-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FASES DEL EJERCICIO */
+    .phase-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--fluor-purple);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 6px;
+    }
+
+    .phase-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .phase-card.phase-success {
+      border-color: var(--success-border);
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.15);
+    }
+
+    .grid-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-box label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .field-box label strong {
+      color: var(--fluor-amber);
+    }
+
+    .viable-selector {
+      display: flex;
+      gap: 8px;
+    }
+
+    .viable-btn {
+      flex: 1;
+      padding: 9px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border-subtle);
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .viable-btn.selected-yes {
+      background: rgba(0, 255, 170, 0.18) !important;
+      border-color: var(--success-border) !important;
+      color: var(--success-text) !important;
+      box-shadow: 0 0 12px rgba(0, 255, 170, 0.25);
+    }
+
+    .viable-btn.selected-no {
+      background: rgba(255, 51, 102, 0.18) !important;
+      border-color: var(--error-border) !important;
+      color: var(--error-text) !important;
+      box-shadow: 0 0 12px rgba(255, 51, 102, 0.25);
+    }
+
+    /* CASILLAS DECIMALES (OCTETOS) */
+    .octets-container {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: center;
+    }
+
+    .dot {
+      color: var(--fluor-purple);
+      font-weight: bold;
+      font-family: 'Fira Code', monospace;
+      opacity: 0.7;
+      font-size: 1.1rem;
+    }
+
+    .octet-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      text-align: center;
+      border-radius: 6px;
+      height: 38px;
+      outline: none;
+      width: 54px;
+      transition: all 0.15s ease;
+    }
+
+    .single-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      text-align: center;
+      border-radius: 6px;
+      height: 38px;
+      padding: 0 10px;
+      outline: none;
+      width: 100%;
+      transition: all 0.15s ease;
+    }
+
+    .octet-input:focus, .single-input:focus {
+      border-color: var(--fluor-gold);
+      background: var(--bg-input-focus);
+      box-shadow: 0 0 8px var(--glow-gold);
+    }
+
+    /* ESTADOS DE VALIDACIÓN */
+    .input-ok {
+      border-color: var(--success-border) !important;
+      background: rgba(0, 255, 170, 0.1) !important;
+      color: var(--success-text) !important;
+    }
+
+    .input-err {
+      border-color: var(--error-border) !important;
+      background: rgba(255, 51, 102, 0.12) !important;
+      color: var(--error-text) !important;
+    }
+
+    .phase-feedback {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .phase-feedback.show-ok {
+      display: block;
+      background: rgba(0, 255, 170, 0.15);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .phase-feedback.show-err {
+      display: block;
+      background: rgba(255, 51, 102, 0.15);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    /* ==========================================================
+       TABLA DINÁMICA DE SUBREDES (MÓDULOS CON VALIDACIÓN INDIVIDUAL)
+       ========================================================== */
+    .subnets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .subnet-row-card {
+      background: #151024;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .subnet-row-card.correct {
+      border-color: var(--success-border) !important;
+      background: rgba(0, 255, 170, 0.08) !important;
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.2) !important;
+    }
+
+    .subnet-row-card.incorrect {
+      border-color: var(--error-border) !important;
+      background: rgba(255, 51, 102, 0.08) !important;
+    }
+
+    .subnet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .subnet-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--fluor-amber);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sub-status-badge {
+      font-size: 0.78rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .sub-status-badge.badge-ok {
+      display: inline-block;
+      background: rgba(0, 255, 170, 0.15);
+      border: 1px solid var(--success-border);
+      color: var(--success-text);
+    }
+
+    .sub-status-badge.badge-err {
+      display: inline-block;
+      background: rgba(255, 51, 102, 0.15);
+      border: 1px solid var(--error-border);
+      color: var(--error-text);
+    }
+
+    .subnet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }
+
+    .ip-block {
+      background: rgba(10, 7, 18, 0.6);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .ip-block-title {
+      font-size: 0.78rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ip-block.net-block .ip-block-title { color: var(--fluor-cyan); }
+    .ip-block.first-block .ip-block-title { color: var(--success-text); }
+    .ip-block.last-block .ip-block-title { color: var(--fluor-amber); }
+    .ip-block.bcast-block .ip-block-title { color: var(--fluor-pink); }
+
+    .ip-block.net-block { border-left: 4px solid var(--fluor-cyan); }
+    .ip-block.first-block { border-left: 4px solid var(--success-border); }
+    .ip-block.last-block { border-left: 4px solid var(--fluor-amber); }
+    .ip-block.bcast-block { border-left: 4px solid var(--fluor-pink); }
+
+    /* Estados de validación por bloque IP */
+    .ip-block.block-ok {
+      border-color: var(--success-border) !important;
+      background: rgba(0, 255, 170, 0.1) !important;
+    }
+
+    .ip-block.block-err {
+      border-color: var(--error-border) !important;
+      background: rgba(255, 51, 102, 0.1) !important;
+    }
+
+    /* AVISO DE INVIABILIDAD */
+    .inviable-notice {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1.5px solid var(--fluor-gold);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      color: #fde68a;
+      line-height: 1.6;
+    }
+
+    /* BOTONES */
+    button {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      padding: 9px 15px;
+      transition: all 0.2s;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--fluor-gold), #d97706);
+      color: #090710;
+      font-weight: 800;
+      box-shadow: 0 4px 14px var(--glow-gold);
+    }
+
+    .btn-gold:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btn-cyan {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid var(--fluor-cyan);
+      color: var(--fluor-cyan);
+    }
+
+    .btn-cyan:hover { background: var(--fluor-cyan); color: #090710; }
+
+    .btn-sec {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-sec:hover { border-color: var(--fluor-purple); color: var(--fluor-purple); }
+
+    .btn-action-icon {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .btn-action-icon:hover { color: var(--fluor-cyan); border-color: var(--fluor-cyan); }
+
+    /* SOLUCIÓN DETALLADA */
+    .solution-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--fluor-cyan);
+      border-radius: var(--radius-md);
+      display: none;
+      animation: fadeIn 0.3s ease;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .solution-box.active { display: block; }
+
+    .math-step {
+      background: rgba(0, 0, 0, 0.4);
+      border-left: 3px solid var(--fluor-gold);
+      padding: 8px 12px;
+      margin: 8px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+
+    .global-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .feedback-msg {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      min-height: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .scenario-requirements { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .scenario-actions button { flex: 1; }
+      .global-actions button { width: 100%; }
+      .subnet-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA HUD -->
+  <aside class="sticky-hud">
+    <div class="hud-left">
+      <div class="hud-title-mini">🪐 GUXING v2</div>
+      <span style="font-size:0.75rem; color:var(--text-dim);">// ARCHITECT</span>
+    </div>
+
+    <div class="hud-center">
+      <div class="hud-converter">
+        <input type="number" id="hud-dec" class="hud-input dec" min="0" max="255" placeholder="DEC">
+        <span class="dot">⇄</span>
+        <input type="text" id="hud-bin" class="hud-input bin" maxlength="8" placeholder="8 BITS">
+      </div>
+    </div>
+
+    <div class="hud-right">
+      <div class="hud-streak" id="hud-streak">⚡ 0 aciertos</div>
+    </div>
+  </aside>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="container">
+    <header>
+      <div class="brand">
+        <h1>🪐 Guxing Net <span class="highlight">//</span> Subnet Architect ⚡</h1>
+        <p>Simulador y planificador interactivo de subredes con topología de red</p>
+      </div>
+    </header>
+
+    <!-- ENUNCIADO DEL PROYECTO -->
+    <section class="scenario-card">
+      <div class="scenario-tag">📋 Caso Práctico de Diseño de Red</div>
+      <div class="scenario-title" id="scenario-title">Cargando proyecto...</div>
+      
+      <div class="scenario-requirements">
+        <div class="req-item">
+          <span class="lbl">Dirección Base Asignada:</span>
+          <span class="val" id="req-base-ip">192.168.1.0 /24</span>
+        </div>
+        <div class="req-item">
+          <span class="lbl">Subredes Requeridas:</span>
+          <span class="val-gold val" id="req-subnets-count">4 Subredes</span>
+        </div>
+        <div class="req-item">
+          <span class="lbl">Hosts por Subred:</span>
+          <span class="val-gold val" id="req-hosts-count">58 PCs / subred</span>
+        </div>
+      </div>
+
+      <div class="scenario-actions">
+        <button class="btn-cyan" id="btn-toggle-custom">✏️ Personalizar Enunciado</button>
+        <button class="btn-sec" id="btn-solution">💡 Rendirse / Ver Solución</button>
+        <button class="btn-gold" id="btn-new-problem">🪐 Generar Caso Aleatorio</button>
+      </div>
+    </section>
+
+    <!-- PANEL DE PERSONALIZACIÓN -->
+    <section class="custom-panel" id="custom-panel">
+      <div style="font-weight:700; color:var(--fluor-cyan); margin-bottom:10px;">⚙️ CONFIGURAR EJERCICIO PERSONALIZADO</div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+        <div class="field-box">
+          <label>IP Base (4 octetos):</label>
+          <div class="octets-container">
+            <input type="text" maxlength="3" class="octet-input" id="c-ip0" value="192"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input" id="c-ip1" value="168"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input" id="c-ip2" value="1"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input" id="c-ip3" value="0">
+          </div>
+        </div>
+        <div class="field-box" style="width:70px;">
+          <label>/CIDR:</label>
+          <input type="number" min="8" max="30" class="single-input" id="c-cidr" value="24">
+        </div>
+        <div class="field-box" style="width:110px;">
+          <label>Nº Subredes:</label>
+          <input type="number" min="1" max="16" class="single-input" id="c-subs" value="4">
+        </div>
+        <div class="field-box" style="width:120px;">
+          <label>Hosts / Subred:</label>
+          <input type="number" min="2" max="10000" class="single-input" id="c-hosts" value="58">
+        </div>
+        <button class="btn-gold" id="btn-apply-custom">🚀 Cargar Caso</button>
+      </div>
+    </section>
+
+    <!-- FASE 1: ANÁLISIS DE VIABILIDAD Y MÁSCARA -->
+    <div class="phase-title"><span>01. Estudio de Viabilidad, Bits y Máscara Calculada</span></div>
+    <section class="phase-card" id="phase-1-card">
+      <div class="grid-fields">
+        
+        <div class="field-box">
+          <label>1. Bits de Host necesarios (h) [<strong>2ʰ - 2 ≥ Hosts</strong>]:</label>
+          <input type="text" class="single-input" id="f-h-bits" placeholder="ej. 6">
+        </div>
+
+        <div class="field-box">
+          <label>2. Hosts Útiles reales por subred (<strong>2ʰ - 2</strong>):</label>
+          <input type="text" class="single-input" id="f-usable-hosts" placeholder="ej. 62">
+        </div>
+
+        <div class="field-box">
+          <label>3. Nueva Máscara CIDR (<strong>32 - h</strong>):</label>
+          <input type="text" class="single-input" id="f-new-cidr" placeholder="ej. /26 o 26">
+        </div>
+
+        <div class="field-box">
+          <label>4. Nueva Máscara Decimal:</label>
+          <div class="octets-container" id="f-mask-dec">
+            <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+            <input type="text" maxlength="3" class="octet-input">
+          </div>
+        </div>
+
+        <div class="field-box">
+          <label>5. Bits de Subred prestados (s) [<strong>/Nueva - /Base</strong>]:</label>
+          <input type="text" class="single-input" id="f-s-bits" placeholder="ej. 2">
+        </div>
+
+        <div class="field-box">
+          <label>6. Nº de Subredes que podemos hacer (<strong>2ˢ</strong>):</label>
+          <input type="text" class="single-input" id="f-subnets-available" placeholder="ej. 4">
+        </div>
+
+        <div class="field-box">
+          <label>7. ¿Es viable con la IP dada? [<strong>2ˢ ≥ Pedidas</strong>]:</label>
+          <div class="viable-selector">
+            <button type="button" class="viable-btn" id="btn-viable-yes" onclick="selectViability(true)">✓ SÍ ES POSIBLE</button>
+            <button type="button" class="viable-btn" id="btn-viable-no" onclick="selectViability(false)">✕ NO ES POSIBLE</button>
+          </div>
+        </div>
+
+        <div class="field-box">
+          <label>8. Salto de Bloque (Incremento) [<strong>2ʰ</strong>]:</label>
+          <input type="text" class="single-input" id="f-jump" placeholder="ej. 64">
+        </div>
+
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button class="btn-cyan" id="btn-check-phase1" onclick="checkPhase1()">Comprobar Fase 1</button>
+        <div id="phase1-feedback" class="phase-feedback"></div>
+      </div>
+    </section>
+
+    <!-- FASE 2: PLANIFICACIÓN DE CADA SUBRED -->
+    <div class="phase-title"><span>02. Tabla de Asignación de Subredes</span></div>
+    <section class="phase-card" id="phase-2-container">
+      <div class="subnets-list" id="subnets-list-container"></div>
+    </section>
+
+    <!-- SOLUCIÓN DETALLADA DESPLEGABLE -->
+    <div class="solution-box" id="solution-box"></div>
+
+    <!-- ACCIONES GLOBALES -->
+    <div class="global-actions">
+      <button class="btn-gold" id="btn-check-all">⚡ Comprobar Todo el Ejercicio</button>
+    </div>
+
+    <div class="feedback-msg" id="feedback-msg"></div>
+  </main>
+
+  <script>
+    let currentProblem = null;
+    let selectedViable = null;
+    let streak = 0;
+    let isScored = false;
+
+    const SCENARIOS = [
+      "Centro de Datos estructurando clústeres de servidores dedicados",
+      "Edificio de oficinas con departamentos independientes (Ventas, IT, Marketing, etc.)",
+      "Campus universitario dividiendo aulas y laboratorios para facultades",
+      "Sede empresarial configurando VLANs aisladas para VoIP y puestos de trabajo",
+      "Hospital asignando subredes seguras para UCI, Consultas, Laboratorio y Administración",
+      "Parque tecnológico distribuyendo bloques IP para startups y servidores de desarrollo"
+    ];
+
+    function intToOctets(int) {
+      return [(int >>> 24) & 255, (int >>> 16) & 255, (int >>> 8) & 255, int & 255];
+    }
+
+    function octetsToInt(octs) {
+      return ((octs[0] << 24) | (octs[1] << 16) | (octs[2] << 8) | octs[3]) >>> 0;
+    }
+
+    function calculateSubnetPlan(baseIp, baseCidr, numSubs, hostsReq) {
+      let h = 0;
+      while ((Math.pow(2, h) - 2) < hostsReq) {
+        h++;
+      }
+
+      const newCidr = 32 - h;
+      const maskInt = newCidr === 0 ? 0 : (~0 << (32 - newCidr)) >>> 0;
+      const maskOctets = intToOctets(maskInt);
+      
+      const blockSize = Math.pow(2, h);
+      const usableHosts = Math.pow(2, h) - 2;
+
+      // Bits prestados y subredes posibles
+      const s = newCidr - baseCidr;
+      const subredesTotales = s >= 0 ? Math.pow(2, s) : 0;
+      const isViable = s >= 0 && subredesTotales >= numSubs && newCidr <= 30;
+
+      const subnets = [];
+      const baseInt = octetsToInt(baseIp);
+
+      // Si es viable, calculamos las subredes
+      if (isViable) {
+        for (let i = 0; i < numSubs; i++) {
+          const netInt = (baseInt + (i * blockSize)) >>> 0;
+          const firstInt = (netInt + 1) >>> 0;
+          const lastInt = (netInt + blockSize - 2) >>> 0;
+          const bcastInt = (netInt + blockSize - 1) >>> 0;
+
+          subnets.push({
+            name: `Subred #${i + 1} (Planta / Depto ${i + 1})`,
+            net: intToOctets(netInt).join('.'),
+            first: intToOctets(firstInt).join('.'),
+            last: intToOctets(lastInt).join('.'),
+            bcast: intToOctets(bcastInt).join('.')
+          });
+        }
+      }
+
+      return {
+        baseIp, baseCidr, numSubs, hostsReq,
+        h, newCidr, maskOctets, blockSize, usableHosts,
+        s, subredesTotales, isViable, subnets
+      };
+    }
+
+    function setProblem(baseIp, baseCidr, numSubs, hostsReq) {
+      currentProblem = calculateSubnetPlan(baseIp, baseCidr, numSubs, hostsReq);
+      selectedViable = null;
+      isScored = false;
+
+      // UI Enunciado
+      document.getElementById('scenario-title').innerText = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+      document.getElementById('req-base-ip').innerText = `${baseIp.join('.')} /${baseCidr}`;
+      document.getElementById('req-subnets-count').innerText = `${numSubs} Subredes`;
+      document.getElementById('req-hosts-count').innerText = `${hostsReq} PCs / subred`;
+
+      // Reset Fase 1
+      document.getElementById('btn-viable-yes').className = 'viable-btn';
+      document.getElementById('btn-viable-no').className = 'viable-btn';
+      
+      const p1Inputs = ['f-h-bits', 'f-usable-hosts', 'f-new-cidr', 'f-s-bits', 'f-subnets-available', 'f-jump'];
+      p1Inputs.forEach(id => {
+        const el = document.getElementById(id);
+        el.value = '';
+        el.className = 'single-input';
+      });
+
+      document.querySelectorAll('#f-mask-dec .octet-input').forEach(i => {
+        i.value = '';
+        i.className = 'octet-input';
+      });
+
+      const p1Fb = document.getElementById('phase1-feedback');
+      p1Fb.className = 'phase-feedback';
+      p1Fb.innerText = '';
+      document.getElementById('phase-1-card').classList.remove('phase-success');
+
+      // Generación Fase 2
+      const listContainer = document.getElementById('subnets-list-container');
+      listContainer.innerHTML = '';
+
+      if (!currentProblem.isViable) {
+        listContainer.innerHTML = `
+          <div class="inviable-notice">
+            <h3 style="color:var(--fluor-gold); margin-bottom:6px;">⚠️ Proyecto No Viable Detectado</h3>
+            <p>Con el prefijo base <strong>/${baseCidr}</strong> no hay suficientes direcciones para alojar <strong>${numSubs} subredes</strong> de <strong>${hostsReq} hosts</strong>.<br>
+            Marca <strong>"NO ES POSIBLE"</strong> en la Fase 1 y pulsa <strong>Comprobar Todo</strong>.</p>
+          </div>
+        `;
+      } else {
+        for (let i = 0; i < numSubs; i++) {
+          const card = document.createElement('div');
+          card.className = 'subnet-row-card';
+          card.id = `sub-card-${i}`;
+
+          card.innerHTML = `
+            <div class="subnet-header">
+              <div class="subnet-name">🏢 Subred #${i + 1} (Depto / Planta ${i + 1})</div>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="sub-status-badge" id="sub-badge-${i}"></span>
+                <button type="button" class="btn-action-icon" onclick="checkSubnet(${i})">Comprobar Subred</button>
+              </div>
+            </div>
+            
+            <div class="subnet-grid">
+              <div class="ip-block net-block" id="block-net-${i}">
+                <span class="ip-block-title">🌐 1. Dirección de Red</span>
+                <div class="octets-container" data-field="net-${i}">
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input">
+                </div>
+              </div>
+
+              <div class="ip-block first-block" id="block-first-${i}">
+                <span class="ip-block-title">🟢 2. Primer Host Útil</span>
+                <div class="octets-container" data-field="first-${i}">
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input">
+                </div>
+              </div>
+
+              <div class="ip-block last-block" id="block-last-${i}">
+                <span class="ip-block-title">🟡 3. Último Host Útil</span>
+                <div class="octets-container" data-field="last-${i}">
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input">
+                </div>
+              </div>
+
+              <div class="ip-block bcast-block" id="block-bcast-${i}">
+                <span class="ip-block-title">📡 4. Dirección de Broadcast</span>
+                <div class="octets-container" data-field="bcast-${i}">
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input"><span class="dot">.</span>
+                  <input type="text" maxlength="3" class="octet-input">
+                </div>
+              </div>
+            </div>
+          `;
+          listContainer.appendChild(card);
+        }
+      }
+
+      setupAutoTabNavigation();
+      document.getElementById('solution-box').classList.remove('active');
+      document.getElementById('feedback-msg').innerText = '';
+    }
+
+    /* GENERADOR DE ESCENARIOS MULTI-PREFIJO */
+    function generateRandomScenario() {
+      const makeViable = Math.random() > 0.15;
+      const baseCidrOptions = [16, 20, 22, 23, 24, 25, 26];
+      const baseCidr = baseCidrOptions[Math.floor(Math.random() * baseCidrOptions.length)];
+
+      let baseIp;
+      let hostsReq;
+      const numSubsOptions = [2, 3, 4, 5, 6, 8];
+      const numSubs = numSubsOptions[Math.floor(Math.random() * numSubsOptions.length)];
+
+      if (baseCidr === 16) {
+        baseIp = [172, Math.floor(Math.random() * 16) + 16, 0, 0];
+        hostsReq = makeViable ? [500, 1000, 2000, 4000][Math.floor(Math.random() * 4)] : 40000;
+      } else if (baseCidr === 20) {
+        const oct2 = Math.floor(Math.random() * 16) * 16;
+        baseIp = [10, Math.floor(Math.random() * 250), oct2, 0];
+        hostsReq = makeViable ? [200, 300, 500, 800][Math.floor(Math.random() * 4)] : 3000;
+      } else if (baseCidr === 22) {
+        const oct2 = Math.floor(Math.random() * 64) * 4;
+        baseIp = [172, 16, oct2, 0];
+        hostsReq = makeViable ? [100, 150, 200, 220][Math.floor(Math.random() * 4)] : 800;
+      } else if (baseCidr === 23) {
+        const oct2 = Math.floor(Math.random() * 128) * 2;
+        baseIp = [192, 168, oct2, 0];
+        hostsReq = makeViable ? [50, 90, 110, 200][Math.floor(Math.random() * 4)] : 500;
+      } else if (baseCidr === 24) {
+        baseIp = [192, 168, Math.floor(Math.random() * 200), 0];
+        hostsReq = makeViable ? [12, 25, 28, 50, 58, 60][Math.floor(Math.random() * 6)] : 150;
+      } else if (baseCidr === 25) {
+        const oct3 = Math.random() > 0.5 ? 0 : 128;
+        baseIp = [192, 168, 10, oct3];
+        hostsReq = makeViable ? [10, 14, 25, 28][Math.floor(Math.random() * 4)] : 90;
+      } else { // /26
+        const oct3 = [0, 64, 128, 192][Math.floor(Math.random() * 4)];
+        baseIp = [192, 168, 1, oct3];
+        hostsReq = makeViable ? [6, 10, 12, 14][Math.floor(Math.random() * 4)] : 40;
+      }
+
+      setProblem(baseIp, baseCidr, numSubs, hostsReq);
+    }
+
+    function selectViability(isYes) {
+      selectedViable = isYes;
+      document.getElementById('btn-viable-yes').className = `viable-btn ${isYes ? 'selected-yes' : ''}`;
+      document.getElementById('btn-viable-no').className = `viable-btn ${!isYes ? 'selected-no' : ''}`;
+    }
+
+    function setupAutoTabNavigation() {
+      document.querySelectorAll('.octets-container').forEach(container => {
+        const inputs = Array.from(container.querySelectorAll('.octet-input'));
+        inputs.forEach((input, idx) => {
+          input.addEventListener('focus', () => input.select());
+          input.addEventListener('input', () => {
+            if (input.value.includes('.')) {
+              input.value = input.value.replace(/\./g, '');
+              if (idx < inputs.length - 1) inputs[idx + 1].focus();
+              return;
+            }
+            if (input.value.length >= 3 && idx < inputs.length - 1) {
+              inputs[idx + 1].focus();
+            }
+          });
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value === '' && idx > 0) {
+              inputs[idx - 1].focus();
+            }
+          });
+        });
+      });
+    }
+
+    /* COMPROBACIÓN FASE 1 */
+    function checkPhase1() {
+      const p = currentProblem;
+      let allOk = true;
+
+      const validate = (id, userVal, expectedVal) => {
+        const el = document.getElementById(id);
+        if (userVal === expectedVal) {
+          el.className = 'single-input input-ok';
+        } else {
+          el.className = 'single-input input-err';
+          allOk = false;
+        }
+      };
+
+      const hVal = parseInt(document.getElementById('f-h-bits').value.trim(), 10);
+      validate('f-h-bits', hVal, p.h);
+
+      const uVal = parseInt(document.getElementById('f-usable-hosts').value.trim(), 10);
+      validate('f-usable-hosts', uVal, p.usableHosts);
+
+      const cidrVal = parseInt(document.getElementById('f-new-cidr').value.replace('/', '').trim(), 10);
+      validate('f-new-cidr', cidrVal, p.newCidr);
+
+      const maskInputs = Array.from(document.querySelectorAll('#f-mask-dec .octet-input'));
+      maskInputs.forEach((inp, i) => {
+        const val = parseInt(inp.value.trim(), 10);
+        if (val === p.maskOctets[i]) {
+          inp.className = 'octet-input input-ok';
+        } else {
+          inp.className = 'octet-input input-err';
+          allOk = false;
+        }
+      });
+
+      const sVal = parseInt(document.getElementById('f-s-bits').value.trim(), 10);
+      validate('f-s-bits', sVal, p.s);
+
+      const subsVal = parseInt(document.getElementById('f-subnets-available').value.trim(), 10);
+      validate('f-subnets-available', subsVal, p.subredesTotales);
+
+      if (selectedViable !== p.isViable) {
+        allOk = false;
+      }
+
+      const jumpVal = parseInt(document.getElementById('f-jump').value.trim(), 10);
+      validate('f-jump', jumpVal, p.blockSize);
+
+      const p1Fb = document.getElementById('phase1-feedback');
+      const p1Card = document.getElementById('phase-1-card');
+
+      if (allOk) {
+        p1Fb.className = 'phase-feedback show-ok';
+        p1Fb.innerHTML = '✨ ¡Fase 1 perfecta! Todos los parámetros coinciden.';
+        p1Card.classList.add('phase-success');
+      } else {
+        p1Fb.className = 'phase-feedback show-err';
+        p1Fb.innerHTML = '❌ Hay casillas en rojo. Revisa los cálculos de la Fase 1.';
+        p1Card.classList.remove('phase-success');
+      }
+
+      return allOk;
+    }
+
+    /* COMPROBACIÓN ROBUSTA DE SUBRED */
+    function checkSubnet(idx) {
+      if (!currentProblem.isViable) {
+        alert('Este proyecto no es viable. No hay subredes que calcular.');
+        return false;
+      }
+
+      const card = document.getElementById(`sub-card-${idx}`);
+      const sol = currentProblem.subnets[idx];
+      const badge = document.getElementById(`sub-badge-${idx}`);
+      if (!card || !sol) return false;
+
+      // Función que compara octeto a octeto como entero
+      const checkBlock = (fieldKey, expectedStr) => {
+        const blockEl = document.getElementById(`block-${fieldKey}-${idx}`);
+        const inputs = Array.from(card.querySelectorAll(`[data-field="${fieldKey}-${idx}"] .octet-input`));
+        const expectedParts = expectedStr.split('.').map(n => parseInt(n, 10));
+
+        let blockOk = true;
+        inputs.forEach((inp, i) => {
+          const val = parseInt(inp.value.trim(), 10);
+          if (isNaN(val) || val !== expectedParts[i]) {
+            blockOk = false;
+          }
+        });
+
+        if (blockOk) {
+          blockEl.classList.remove('block-err');
+          blockEl.classList.add('block-ok');
+        } else {
+          blockEl.classList.remove('block-ok');
+          blockEl.classList.add('block-err');
+        }
+        return blockOk;
+      };
+
+      const okNet = checkBlock('net', sol.net);
+      const okFirst = checkBlock('first', sol.first);
+      const okLast = checkBlock('last', sol.last);
+      const okBcast = checkBlock('bcast', sol.bcast);
+
+      const allCardOk = okNet && okFirst && okLast && okBcast;
+
+      if (allCardOk) {
+        card.classList.remove('incorrect');
+        card.classList.add('correct');
+        badge.className = 'sub-status-badge badge-ok';
+        badge.innerText = '✓ Correcta';
+      } else {
+        card.classList.remove('correct');
+        card.classList.add('incorrect');
+        badge.className = 'sub-status-badge badge-err';
+        badge.innerText = '✕ Revisa los bloques en rojo';
+      }
+
+      return allCardOk;
+    }
+
+    function checkAll() {
+      const p1Ok = checkPhase1();
+      let p2Ok = true;
+
+      if (currentProblem.isViable) {
+        for (let i = 0; i < currentProblem.numSubs; i++) {
+          if (!checkSubnet(i)) p2Ok = false;
+        }
+      } else {
+        p2Ok = (selectedViable === false);
+      }
+
+      const msg = document.getElementById('feedback-msg');
+      if (p1Ok && p2Ok) {
+        if (!isScored) {
+          streak++;
+          isScored = true;
+          document.getElementById('hud-streak').innerText = `⚡ ${streak} aciertos`;
+        }
+        msg.style.color = 'var(--success-text)';
+        msg.innerText = '🎉 ¡PROYECTO DE SUBREDES PERFECTO! Planificación de red validada con éxito.';
+      } else {
+        streak = 0;
+        document.getElementById('hud-streak').innerText = `⚡ 0 aciertos`;
+        msg.style.color = 'var(--error-text)';
+        msg.innerText = 'Hay errores en el ejercicio. Corrige los bloques señalados.';
+      }
+    }
+
+    function revealSolution() {
+      const p = currentProblem;
+      const sBox = document.getElementById('solution-box');
+
+      selectViability(p.isViable);
+      document.getElementById('f-h-bits').value = p.h;
+      document.getElementById('f-usable-hosts').value = p.usableHosts;
+      document.getElementById('f-new-cidr').value = `/${p.newCidr}`;
+      document.getElementById('f-s-bits').value = p.s;
+      document.getElementById('f-subnets-available').value = p.subredesTotales;
+      document.getElementById('f-jump').value = p.blockSize;
+
+      const maskDecInputs = Array.from(document.querySelectorAll('#f-mask-dec .octet-input'));
+      p.maskOctets.forEach((val, i) => maskDecInputs[i].value = val);
+
+      checkPhase1();
+
+      if (p.isViable) {
+        p.subnets.forEach((sub, idx) => {
+          const card = document.getElementById(`sub-card-${idx}`);
+          const fill = (f, str) => {
+            const parts = str.split('.');
+            Array.from(card.querySelectorAll(`[data-field="${f}-${idx}"] .octet-input`)).forEach((inp, i) => inp.value = parts[i]);
+          };
+          fill('net', sub.net);
+          fill('first', sub.first);
+          fill('last', sub.last);
+          fill('bcast', sub.bcast);
+          checkSubnet(idx);
+        });
+      }
+
+      sBox.innerHTML = `
+        <div style="font-weight:800; color:var(--fluor-gold); font-size:1.1rem; margin-bottom:8px;">💡 Desglose y Explicación Paso a Paso:</div>
+        
+        <div class="math-step">
+          <strong>1️⃣ Fórmula de Hosts:</strong> Necesitamos ${p.hostsReq} hosts.<br>
+          Buscamos la menor potencia: 2ʰ - 2 ≥ ${p.hostsReq} ➔ <strong>h = ${p.h} bits</strong> (2ʰ = ${p.blockSize} ➔ ${p.blockSize} - 2 = <strong>${p.usableHosts} hosts útiles</strong>).
+        </div>
+
+        <div class="math-step">
+          <strong>2️⃣ Nueva Máscara CIDR y Decimal:</strong><br>
+          32 bits totales - ${p.h} bits de host = <strong>/${p.newCidr}</strong> ➔ Decimal: <strong>${p.maskOctets.join('.')}</strong>
+        </div>
+
+        <div class="math-step">
+          <strong>3️⃣ Bits de Subred prestados (s) y Subredes Totales:</strong><br>
+          s = ${p.newCidr} (Nueva) - ${p.baseCidr} (Base) = <strong>${p.s} bits</strong>.<br>
+          Subredes que podemos hacer = 2ˢ = 2^${p.s} = <strong>${p.subredesTotales} subredes posibles</strong>.
+        </div>
+
+        <div class="math-step">
+          <strong>4️⃣ Comprobación de Viabilidad:</strong><br>
+          ¿Caben las ${p.numSubs} subredes pedidas en las ${p.subredesTotales} que podemos hacer? ➔ <strong>${p.isViable ? 'SÍ, es viable' : 'NO, no caben (faltan IPs)'}</strong>.
+        </div>
+
+        <div class="math-step">
+          <strong>5️⃣ Salto de Red (Incremento de Bloque):</strong><br>
+          Salto = 2ʰ = 2^${p.h} = <strong>${p.blockSize} direcciones totales por subred</strong>.
+        </div>
+      `;
+      sBox.classList.add('active');
+
+      streak = 0;
+      document.getElementById('hud-streak').innerText = `⚡ 0 aciertos`;
+      document.getElementById('feedback-msg').innerText = 'Solución completa desplegada.';
+    }
+
+    /* HUD CONVERTER */
+    document.getElementById('hud-dec').addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val) && val >= 0 && val <= 255) {
+        document.getElementById('hud-bin').value = val.toString(2).padStart(8, '0');
+      } else {
+        document.getElementById('hud-bin').value = '';
+      }
+    });
+
+    document.getElementById('hud-bin').addEventListener('input', (e) => {
+      const clean = e.target.value.replace(/[^01]/g, '');
+      e.target.value = clean;
+      if (clean.length > 0) {
+        document.getElementById('hud-dec').value = parseInt(clean, 2);
+      } else {
+        document.getElementById('hud-dec').value = '';
+      }
+    });
+
+    /* EVENTOS */
+    document.getElementById('btn-new-problem').addEventListener('click', generateRandomScenario);
+    document.getElementById('btn-solution').addEventListener('click', revealSolution);
+    document.getElementById('btn-check-all').addEventListener('click', checkAll);
+
+    document.getElementById('btn-toggle-custom').addEventListener('click', () => {
+      document.getElementById('custom-panel').classList.toggle('active');
+    });
+
+    document.getElementById('btn-apply-custom').addEventListener('click', () => {
+      const ip = [
+        parseInt(document.getElementById('c-ip0').value, 10),
+        parseInt(document.getElementById('c-ip1').value, 10),
+        parseInt(document.getElementById('c-ip2').value, 10),
+        parseInt(document.getElementById('c-ip3').value, 10)
+      ];
+      const cidr = parseInt(document.getElementById('c-cidr').value, 10);
+      const subs = parseInt(document.getElementById('c-subs').value, 10);
+      const hosts = parseInt(document.getElementById('c-hosts').value, 10);
+
+      setProblem(ip, cidr, subs, hosts);
+      document.getElementById('custom-panel').classList.remove('active');
+    });
+
+    // Iniciar caso aleatorio
+    generateRandomScenario();
+  </script>
+</body>
+</html>
